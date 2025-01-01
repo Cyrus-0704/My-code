@@ -24,59 +24,59 @@ Programming
 I
 */
 // 直接遍历
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+// #include <stdio.h>
+// #include <string.h>
+// #include <ctype.h>
 
-int main()
-{
-    char input[201]; // 假设最大长度不超过200字符
-    char word[101], longest[101] = "", shortest[101] = "";
-    int i = 0, wordIndex = 0;
+// int main()
+// {
+//     char input[201]; // 假设最大长度不超过200字符
+//     char word[101], longest[101] = "", shortest[101] = "";
+//     int i = 0, wordIndex = 0;
 
-    fgets(input, sizeof(input), stdin); // 读取输入
+//     fgets(input, sizeof(input), stdin); // 读取输入
 
-    while (input[i] != '\0')
-    {
-        if (isalpha(input[i]) || input[i] == '-')
-        { // 判断是否为单词的一部分
-            word[wordIndex++] = input[i];
-        }
-        else if (wordIndex > 0)
-        { // 一个单词结束
-            word[wordIndex] = '\0';
-            if (strlen(longest) == 0 || strlen(word) > strlen(longest))
-            {
-                strcpy(longest, word);
-            }
-            if (strlen(shortest) == 0 || strlen(word) < strlen(shortest))
-            {
-                strcpy(shortest, word);
-            }
-            wordIndex = 0; // 重置索引
-        }
-        i++;
-    }
+//     while (input[i] != '\0')
+//     {
+//         if (isalpha(input[i]) || input[i] == '-')
+//         { // 判断是否为单词的一部分
+//             word[wordIndex++] = input[i];
+//         }
+//         else if (wordIndex > 0)
+//         { // 一个单词结束
+//             word[wordIndex] = '\0';
+//             if (strlen(longest) == 0 || strlen(word) > strlen(longest))
+//             {
+//                 strcpy(longest, word);
+//             }
+//             if (strlen(shortest) == 0 || strlen(word) < strlen(shortest))
+//             {
+//                 strcpy(shortest, word);
+//             }
+//             wordIndex = 0; // 重置索引
+//         }
+//         i++;
+//     }
 
-    // 检查最后一个单词
-    if (wordIndex > 0)
-    {
-        word[wordIndex] = '\0';
-        if (strlen(word) > strlen(longest))
-        {
-            strcpy(longest, word);
-        }
-        if (strlen(word) < strlen(shortest) || strlen(shortest) == 0)
-        {
-            strcpy(shortest, word);
-        }
-    }
+//     // 检查最后一个单词
+//     if (wordIndex > 0)
+//     {
+//         word[wordIndex] = '\0';
+//         if (strlen(word) > strlen(longest))
+//         {
+//             strcpy(longest, word);
+//         }
+//         if (strlen(word) < strlen(shortest) || strlen(shortest) == 0)
+//         {
+//             strcpy(shortest, word);
+//         }
+//     }
 
-    printf("%s\n%s\n", longest, shortest);
-    return 0;
-}
+//     printf("%s\n%s\n", longest, shortest);
+//     return 0;
+// }
 
-/*用strtok函数分割
+/*用strtok函数分割*/
 
 
 #include <stdio.h>
@@ -101,7 +101,7 @@ int main() {
 
     printf("%s\n%s\n", longest, shortest); // 输出
     return 0;
-}*/
+}
 
 /*单词分离 + 手动比较
 

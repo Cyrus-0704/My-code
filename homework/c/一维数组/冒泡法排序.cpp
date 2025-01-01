@@ -17,7 +17,7 @@
 int main()
 {
     int N, K;
-    int m, p;
+    int m, temp;
     scanf("%d %d", &N, &K);
     int z[N];
     for (int i = 0; i < N; i++)
@@ -31,9 +31,9 @@ int main()
         {
             if (z[j] > z[j + 1])
             {
-                p = z[j];
+                temp = z[j];
                 z[j] = z[j + 1];
-                z[j + 1] = p;
+                z[j + 1] = temp;
             }
         }
     }

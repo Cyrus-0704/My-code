@@ -11,34 +11,78 @@
 5 1 7 6
 输出样例：
 7 6 5 1*/
+// #include <stdio.h>
+// int main()
+// {
+//     int n, m;
+//     scanf("%d", &n);
+//     int z[n];
+//     for (int i = 0; i < n; i++)
+//     {
+//         scanf("%d ", &m);
+//         z[i] = m;
+//     }
+//     int temp;
+//     for (int i = 0; i < n - 1; i++)
+//     {
+//         for (int j = 0; j < n - 1 - i; j++)
+//         {
+//             if (z[j] < z[j + 1])
+//             {
+//                 temp = z[j];
+//                 z[j] = z[j + 1];
+//                 z[j + 1] = temp;
+//             }
+//         }
+//     }
+//     for (int i = 0; i < n - 1; i++)
+//     {
+//         printf("%d ", z[i]);
+//     }
+//     printf("%d", z[n - 1]);
+//     return 0;
+// }
 #include <stdio.h>
+
 int main()
 {
-    int n, m;
+    int n;
     scanf("%d", &n);
-    int z[n];
+    int arr[10]; // 定义数组用于存储输入的整数，题目限定n不超过10
     for (int i = 0; i < n; i++)
     {
-        scanf("%d ", &m);
-        z[i] = m;
+        scanf("%d", &arr[i]);
     }
-    int temp;
+
+    // 选择排序实现从大到小排序
     for (int i = 0; i < n - 1; i++)
     {
-        for (int j = 0; j < n - 1 - i; j++)
+        int max_index = i;
+        for (int j = i + 1; j < n; j++)
         {
-            if (z[j] < z[j + 1])
+            if (arr[j] > arr[max_index])
             {
-                temp = z[j];
-                z[j] = z[j + 1];
-                z[j + 1] = temp;
+                max_index = j;
             }
         }
+        if (max_index != i)
+        {
+            int temp = arr[i];
+            arr[i] = arr[max_index];
+            arr[max_index] = temp;
+        }
     }
-    for (int i = 0; i < n - 1; i++)
+
+    // 输出排序后的数组
+    for (int i = 0; i < n; i++)
     {
-        printf("%d ", z[i]);
+        if (i != 0)
+        {
+            printf(" ");
+        }
+        printf("%d", arr[i]);
     }
-    printf("%d", z[n - 1]);
+    printf("\n");
+
     return 0;
 }
