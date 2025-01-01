@@ -163,12 +163,13 @@
             const todos = JSON.parse(localStorage.getItem('todos')) || [];
             const todoList = document.querySelector('.todo-list');
             todos.forEach(todo => {
+                const nameWithoutTimestamp = todo.name.split(' (')[0];
                 const newItem = document.createElement('div');
                 newItem.className = `item ${todo.completed ? 'completed' : ''}`;
                 newItem.innerHTML = `
                     <div>
                         <input type="checkbox" ${todo.completed ? 'checked' : ''}>
-                        <span class="name">${todo.name}</span>
+                        <span class="name">${nameWithoutTimestamp} <span class="timestamp">${todo.timestamp}</span></span>
                     </div>
                     <div class="del">delet</div>
                     <div class="comment">${todo.comment}</div>
@@ -212,6 +213,7 @@
                 if (target.tagName === 'INPUT' && target.type === 'checkbox') {
                     const item = target.closest('.item');
                     item.classList.toggle('completed');
+                    saveTodos();
                     return;
                 }
 
