@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my first web</title>
+</head>
+<body>
+    <div class="todo-list">
+        <div class="title">My todo list</div>
+        <div class="subtitle">点击待办事项可修改</div>
+
+        <div class="todo-form">
+            <input class="input"type="text" placeholder="Add a todo">
+            <div class="todo-button">Add</div>
+        </div>
+    </div>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #d4aad4, #3030c6);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .todo-list {
+            width: 100%;
+            max-width: 800px;
+            min-height: 600px;
+            background: white;
+            border-radius: 20px;
+            margin: 40px auto;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .title {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0 10px;
+            color: #2c3e50;
+        }
+        .subtitle {
+            font-size: 14px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            display: block;
+            width: 100%;
+        }
+        .todo-form {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+        .input {
+            flex: 1;
+            max-width: 500px;
+            padding: 0 20px;
+            border: 2px solid #e0e0e0;
+            outline: none;
+            height: 56px;
+            border-radius: 28px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        .todo-button {
+            width: 140px;
+            height: 56px;
+            line-height: 56px;
+            text-align: center;
+            border-radius: 28px;
+            background: linear-gradient(to right, #d4aad4, #3030c6);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+        .todo-button:hover {
+            transform: scale(1.05);
+        }
+        .item {
+            display: flex;
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 60px;
+            margin: 15px 0;
+            padding: 18px 24px;
+            border-radius: 15px;
+            background: white;
+            align-items: flex-start;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .item > div:first-child {
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+        .del {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #e74c3c;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        .del {
+            color: #e74c3c;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .del:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+        .completed .name {
+            text-decoration: line-through;
+            opacity: 0.6;
+            color: #95a5a6;
+        }
+        .completed {
+            background: #f8f9fa;
+        }
+    </style>
+    <script>
+        function saveTodos() {
+            const items = document.querySelectorAll('.item');
+            const todos = [];
+            items.forEach(item => {
+                const name = item.querySelector('.name').textContent;
+                const timestamp = item.querySelector('.timestamp').textContent;
+                const comment = item.querySelector('.comment').textContent;
+                const completed = item.classList.contains('completed');
+                todos.push({ name, timestamp, comment, completed });
+            });
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function loadTodos() {
+            const todos = JSON.parse(localStorage.getItem('todos')) || [];
+            const todoList = document.querySelector('.todo-list');
+            todos.forEach(todo => {
+                const nameWithoutTimestamp = todo.name.split(' (')[0];
+                const newItem = document.createElement('div');
+                newItem.className = `item ${todo.completed ? 'completed' : ''}`;
+                newItem.innerHTML = `
+                    <div>
+                        <input type="checkbox" ${todo.completed ? 'checked' : ''}>
+                        <span class="name">${nameWithoutTimestamp} <span class="timestamp">${todo.timestamp}</span></span>
+                    </div>
+                    <div class="del">delet</div>
+                    <div class="comment">${todo.comment}</div>
+                `;
+                todoList.appendChild(newItem);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const addButton = document.querySelector('.todo-button');
+            const input = document.querySelector('.input');
+            const todoList = document.querySelector('.todo-list');
+
+            loadTodos();
+
+            addButton.addEventListener('click', function() {
+                if (input.value.trim() === '') return;
+
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString();
+                const formattedTime = now.toLocaleTimeString();
+
+                const newItem = document.createElement('div');
+                newItem.className = 'item';
+                newItem.innerHTML = `
+                    <div>
+                        <input type="checkbox">
+                        <span class="name">${input.value} <span class="timestamp">(${formattedDate} ${formattedTime})</span></span>
+                    </div>
+                    <div class="del">delet</div>
+                    <div class="comment"></div>
+                `;
+                todoList.appendChild(newItem);
+                input.value = '';
+                saveTodos();
+            });
+
+            todoList.addEventListener('click', function(e) {
+                const target = e.target;
+
+                if (target.tagName === 'INPUT' && target.type === 'checkbox') {
+                    const item = target.closest('.item');
+                    item.classList.toggle('completed');
+                    saveTodos();
+                    return;
+                }
+
+                if (target.classList.contains('del')) {
+                    const item = target.closest('.item');
+                    item.remove();
+                    saveTodos();
+                    return;
+                }
+
+                if (target.classList.contains('name') || target.classList.contains('timestamp')) {
+                    const item = target.closest('.item');
+                    const nameElement = item.querySelector('.name');
+                    const commentDiv = item.querySelector('.comment');
+                    const currentText = nameElement.textContent.split(' (')[0];
+                    const currentComment = commentDiv.textContent || '';
+
+                    const attributes = prompt(`编辑待办事项属性：\n\n事项内容：${currentText}\n注释：${currentComment}\n\n请输入新的内容：`, currentText);
+                    if (attributes !== null) {
+                        const [newText, newComment] = attributes.split('\n');
+                        nameElement.textContent = (newText || currentText) + nameElement.textContent.substring(currentText.length);
+                        commentDiv.textContent = newComment || currentComment;
+                        commentDiv.style.fontSize = '12px';
+                        commentDiv.style.color = '#34495e';
+                        commentDiv.style.marginTop = '10px';
+                        commentDiv.style.paddingLeft = '20px';
+                        commentDiv.style.borderLeft = '3px solid #dcdcdc';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

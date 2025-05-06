@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>咸鱼万事屋 - 服务</title>
+    <link rel="stylesheet" href="../CSS/style.css" />
+</head>
+
+<body>
+    <header>
+        <h1>咸鱼万事屋</h1>
+        <nav>
+            <a href="index.html">首页</a> |
+            <a href="services.html">服务</a> |
+            <a href="contact.html">联系我们</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>服务项目</h2>
+        
+        <div class="service-tabs">
+            <button class="tab-btn active" onclick="openService('printing')">打印业务</button>
+            <button class="tab-btn" onclick="openService('computer')">电脑业务</button>
+        </div>
+
+        <div id="printing" class="service-content" style="display:block">
+            <h3>打印服务</h3>
+            <table>
+                <tr>
+                    <th>服务内容</th>
+                    <th>价格</th>
+                </tr>
+                <tr>
+                    <td>黑白打印（单面）</td>
+                    <td>0.2元/页</td>
+                </tr>
+                <tr>
+                    <td>彩色打印（单面）</td>
+                    <td>0.8元/页</td>
+                </tr>
+                <tr>
+                    <td>文件装订</td>
+                    <td>免费</td>
+                </tr>
+                <tr>
+                    <td>往期考试试卷</td>
+                    <td>1.5元/份</td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="computer" class="service-content" style="display:none">
+            <h3>电脑服务</h3>
+            <table>
+                <tr>
+                    <th>服务内容</th>
+                    <th>价格</th>
+                </tr>
+                <tr>
+                    <td>系统安装/重装</td>
+                    <td>50元/次</td>
+                </tr>
+                <tr>
+                    <td>加装硬盘</td>
+                    <td>20元/次</td>
+                </tr>
+                <tr>
+                    <td>硬件清洁</td>
+                    <td>50元/次</td>
+                </tr>
+                <tr>
+                    <td>下载正版steam</td>
+                    <td>20元起</td>
+                </tr>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 咸鱼万事屋</p>
+    </footer>
+
+    <script>
+        function openService(serviceName) {
+            const contents = document.getElementsByClassName("service-content");
+            for (let i = 0; i < contents.length; i++) {
+                contents[i].style.display = "none";
+            }
+            
+            const btns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < btns.length; i++) {
+                btns[i].className = btns[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(serviceName).style.display = "block";
+            event.currentTarget.className += " active";
+        }
+    </script>
+</body>
+
+</html>
