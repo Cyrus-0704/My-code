@@ -89,11 +89,11 @@ int main()
         head = createStudentList();
     }
 
-    // 主菜单循环，直到用户选择退出
+    // 主菜单循环，till选择退出
     do
     {
-        displayMenu();                        // 显示菜单
-        printf("Please enter your choice: "); // 请输入您的选择：
+        displayMenu();                        
+        printf("Please enter your choice: ");
         scanf("%d", &choice);
         if (choice == 0)
         {
@@ -111,7 +111,7 @@ int main()
         }
         else
         {
-            processChoice(choice, &head, currentUser); // 传递currentUser
+            processChoice(choice, &head, currentUser);
         }
     } while (!exitFlag);
 
@@ -124,8 +124,7 @@ int main()
     {
         printf("Data saving failed!\n");
     }
-
-    // 释放链表内存
+  
     freeStudentList(head);
 
     printf("Thank you for using this system, goodbye!\n");
@@ -163,7 +162,6 @@ int login(char currentUser[])
     return 0;
 }
 
-// 验证用户名和密码
 int verifyUser(const char *username, const char *password)
 {
     User *users = NULL;
@@ -224,7 +222,6 @@ void displayMenu()
     printf("0. Exit system\n");
 }
 
-// 处理用户选择
 void processChoice(int choice, Student **head, char currentUser[])
 {
     char id[20];
@@ -356,7 +353,6 @@ void processChoice(int choice, Student **head, char currentUser[])
     }
 }
 
-// 创建空的学生链表
 Student *createStudentList()
 {
     return NULL;
@@ -371,7 +367,6 @@ int confirmReturn()
     return strcmp(confirm, "yes") == 0;
 }
 
-// 添加学生信息
 Student *addStudent(Student *head)
 {
     while (1)
@@ -409,7 +404,7 @@ Student *addStudent(Student *head)
             return head;
         }
 
-        // 性别输入合法性判断，只允许male或female
+        // 判断性别合法？只能有男or女
         while (1)
         {
             printf("Please enter gender (male/female, or -1 to return to main menu): ");
@@ -547,7 +542,6 @@ void rankStudentsByTotal(Student *head)
     free(students);
 }
 
-// 根据学号查找学生
 Student *findStudentById(Student *head, const char *id)
 {
     if (strcmp(id, "-1") == 0)
@@ -580,7 +574,6 @@ Student *findStudentById(Student *head, const char *id)
     return NULL;
 }
 
-// 根据姓名查找学生
 Student *findStudentByName(Student *head, const char *name)
 {
     if (strcmp(name, "-1") == 0)
@@ -690,7 +683,6 @@ Student *loadStudentsFromFile(const char *filename)
     return head;
 }
 
-// 释放学生链表内存
 void freeStudentList(Student *head)
 {
     Student *current = head;
@@ -704,7 +696,6 @@ void freeStudentList(Student *head)
     }
 }
 
-// 保存用户信息（文本格式）
 void saveUsers(User *users, int count)
 {
     FILE *file = fopen("users.txt", "w");
@@ -720,7 +711,6 @@ void saveUsers(User *users, int count)
     fclose(file);
 }
 
-// 加载用户信息（文本格式）
 int loadUsers(User **users)
 {
     FILE *file = fopen("users.txt", "r");
@@ -753,7 +743,6 @@ int loadUsers(User **users)
     return count;
 }
 
-// 根据学号删除学生
 Student *deleteStudentById(Student *head, const char *id)
 {
     if (head == NULL)
@@ -809,7 +798,6 @@ Student *deleteStudentById(Student *head, const char *id)
     return head;
 }
 
-// 根据姓名删除学生
 Student *deleteStudentByName(Student *head, const char *name)
 {
     if (head == NULL)
@@ -877,7 +865,6 @@ Student *deleteStudentByName(Student *head, const char *name)
     return head;
 }
 
-// 根据学号修改学生信息
 Student *modifyStudentById(Student *head, const char *id)
 {
     if (strcmp(id, "-1") == 0)
@@ -998,7 +985,6 @@ Student *modifyStudentById(Student *head, const char *id)
     return head;
 }
 
-// 根据姓名修改学生信息
 Student *modifyStudentByName(Student *head, const char *name)
 {
     // 查找是否有多个同名学生
@@ -1119,7 +1105,6 @@ Student *modifyStudentByName(Student *head, const char *name)
     return head;
 }
 
-// 显示所有学生信息
 void displayAllStudents(Student *head)
 {
     if (head == NULL)
@@ -1145,7 +1130,6 @@ void displayAllStudents(Student *head)
     printf("--------------------------------------------------------------------------------------------------------------\n");
 }
 
-// 按学号排序
 Student *sortStudentsById(Student *head)
 {
     if (head == NULL || head->next == NULL)
@@ -1208,7 +1192,6 @@ Student *sortStudentsById(Student *head)
     return head;
 }
 
-// 按总分排序
 Student *sortStudentsByTotal(Student *head)
 {
     if (head == NULL || head->next == NULL)
@@ -1364,7 +1347,6 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
     }
 }
 
-// 显示成绩在特定值以下的学生
 void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
 {
     if (head == NULL)
@@ -1416,7 +1398,6 @@ void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
     }
 }
 
-// 显示低于平均分的学生
 void displayStudentsBelowAverage(Student *head, float averages[5])
 {
     if (head == NULL)
@@ -1459,7 +1440,6 @@ void displayStudentsBelowAverage(Student *head, float averages[5])
     }
 }
 
-// 显示优秀学生（指定分数以上）
 void displayExcellentStudents(Student *head)
 {
     if (head == NULL)
@@ -1484,8 +1464,7 @@ void displayExcellentStudents(Student *head)
             course--; // 重试当前课程
             continue;
         }
-
-        // 立即显示当前课程的结果
+        
         printf("\nCourse %d (Students with scores above %.2f):\n", course + 1, minScores[course]);
         printf("%-10s %-15s %-10s\n", "ID", "Name", "Score");
         printf("----------------------------------------\n");
@@ -1519,7 +1498,6 @@ void displayExcellentStudents(Student *head)
     }
 }
 
-// 显示不及格学生（60分以下）
 void displayFailingStudents(Student *head)
 {
     if (head == NULL)
@@ -1585,7 +1563,6 @@ void displayFailingStudents(Student *head)
     }
 }
 
-// 导出成绩为CSV文件
 void exportGradesToCSV(Student *head)
 {
     printf("Are you sure you want to export grades to CSV? (y/n, or -1 to return to main menu): ");
@@ -1608,7 +1585,6 @@ void exportGradesToCSV(Student *head)
         printf("Cannot open students.csv for writing!\n");
         return;
     }
-    // 写表头
     fprintf(file, "ID,Name,Gender,Course1,Course2,Course3,Course4,Course5,Total,Average,Rank\n");
     Student *current = head;
     while (current != NULL)
@@ -1623,7 +1599,6 @@ void exportGradesToCSV(Student *head)
     printf("Exported to students.csv successfully!\n");
 }
 
-// Register new user
 void registerUser()
 {
     while (1)
@@ -1642,7 +1617,7 @@ void registerUser()
             return;
         }
 
-        // Check if username exists
+        // 检查是否存在该用户
         for (int i = 0; i < count; i++)
         {
             if (strcmp(users[i].username, username) == 0)
@@ -1672,7 +1647,6 @@ void registerUser()
     }
 }
 
-// Delete user
 void deleteUser()
 {
     while (1)
@@ -1738,7 +1712,6 @@ void deleteUser()
     }
 }
 
-// Change password
 void changePassword()
 {
     while (1)
@@ -1798,7 +1771,6 @@ void changePassword()
     }
 }
 
-// 查看当前登录用户
 void viewCurrentUser(char currentUser[])
 {
     if (strcmp(currentUser, "") == 0)
