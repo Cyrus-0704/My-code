@@ -2,29 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_NAME_LEN 30
-#define MAX_PASSWORD_LEN 20
-#define COURSE_NUM 5
-#define MAX_GENDER_LEN 10
-
-// 用户登录信息结构
 typedef struct
 {
-    char username[MAX_NAME_LEN];
-    char password[MAX_PASSWORD_LEN];
+    char username[30];
+    char password[20];
 } User;
 
-// 学生信息结构
 typedef struct Student
 {
-    char id[20];                 // 学号
-    char name[MAX_NAME_LEN];     // 姓名
-    char gender[MAX_GENDER_LEN]; // 性别
-    float scores[COURSE_NUM];    // 5门课程成绩
-    float total;                 // 总分
-    float average;               // 平均分
-    int rank;                    // 名次
-    struct Student *next;        // 链表下一节点指针
+    char id[20];
+    char name[30];
+    char gender[10];
+    float scores[5];
+    float total;
+    float average;
+    int rank;
+    struct Student *next;
 } Student;
 
 // 函数声明
@@ -34,6 +27,10 @@ int verifyUser(const char *username, const char *password);
 void saveUsers(User *users, int count);
 int loadUsers(User **users);
 void exportGradesToCSV(Student *head);
+void registerUser();
+void deleteUser();
+void changePassword();
+void viewCurrentUser(char currentUser[]);
 
 // 2. 学生信息管理
 Student *createStudentList();
@@ -55,8 +52,8 @@ Student *sortStudentsById(Student *head);
 Student *sortStudentsByTotal(Student *head);
 void displayStudentsWithScoreAbove(Student *head, float score, int course_index);
 void displayStudentsWithScoreBelow(Student *head, float score, int course_index);
-void calculateCourseAverages(Student *head, float averages[COURSE_NUM]);
-void displayStudentsBelowAverage(Student *head, float averages[COURSE_NUM]);
+void calculateCourseAverages(Student *head, float averages[5]);
+void displayStudentsBelowAverage(Student *head, float averages[5]);
 void displayExcellentStudents(Student *head);
 void displayFailingStudents(Student *head);
 
@@ -68,118 +65,11 @@ Student *loadStudentsFromFile(const char *filename);
 void displayMenu();
 void processChoice(int choice, Student **head, char currentUser[]);
 
-// Register new user
-void registerUser()
-{
-    char username[MAX_NAME_LEN];
-    char password[MAX_PASSWORD_LEN];
-    User *users = NULL;
-    int count = loadUsers(&users);
-    printf("Please enter new username: ");
-    scanf("%s", username);
-    // Check if username exists
-    for (int i = 0; i < count; i++)
-    {
-        if (strcmp(users[i].username, username) == 0)
-        {
-            printf("Username already exists!\n");
-            free(users);
-            return;
-        }
-    }
-    printf("Please enter new password: ");
-    scanf("%s", password);
-    users = (User *)realloc(users, sizeof(User) * (count + 1));
-    strcpy(users[count].username, username);
-    strcpy(users[count].password, password);
-    saveUsers(users, count + 1);
-    printf("User registered successfully!\n");
-    free(users);
-}
-
-// Delete user
-void deleteUser()
-{
-    char username[MAX_NAME_LEN];
-    User *users = NULL;
-    int count = loadUsers(&users);
-    if (count <= 1)
-    {
-        printf("At least one user must remain!\n");
-        free(users);
-        return;
-    }
-    printf("Please enter username to delete: ");
-    scanf("%s", username);
-    int found = 0;
-    for (int i = 0; i < count; i++)
-    {
-        if (strcmp(users[i].username, username) == 0)
-        {
-            found = 1;
-            for (int j = i; j < count - 1; j++)
-            {
-                users[j] = users[j + 1];
-            }
-            break;
-        }
-    }
-    if (!found)
-    {
-        printf("Username not found!\n");
-        free(users);
-        return;
-    }
-    saveUsers(users, count - 1);
-    printf("User deleted successfully!\n");
-    free(users);
-}
-
-// Change password
-void changePassword()
-{
-    char username[MAX_NAME_LEN];
-    char oldPassword[MAX_PASSWORD_LEN];
-    char newPassword[MAX_PASSWORD_LEN];
-    User *users = NULL;
-    int count = loadUsers(&users);
-    int found = 0;
-    printf("Please enter your username: ");
-    scanf("%s", username);
-    printf("Please enter your old password: ");
-    scanf("%s", oldPassword);
-    for (int i = 0; i < count; i++)
-    {
-        if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, oldPassword) == 0)
-        {
-            printf("Please enter your new password: ");
-            scanf("%s", newPassword);
-            strcpy(users[i].password, newPassword);
-            saveUsers(users, count);
-            printf("Password changed successfully!\n");
-            found = 1;
-            break;
-        }
-    }
-    if (!found)
-    {
-        printf("Username or old password incorrect!\n");
-    }
-    free(users);
-}
-
-// 查看当前登录用户
-void viewCurrentUser(char currentUser[])
-{
-    printf("Current logged in user: %s\n", currentUser); // 当前登录用户：%s
-}
-
-
 int main()
 {
     int choice;
     Student *head = NULL;
-    char currentUser[MAX_NAME_LEN] = ""; // 当前登录用户名，局部变量
+    char currentUser[30] = "";
     int loggedIn = 0;
     int exitFlag = 0;
 
@@ -195,7 +85,7 @@ int main()
     head = loadStudentsFromFile("students.txt");
     if (head == NULL)
     {
-        printf("No student data found or data is empty, new student list will be created.\n"); // 未找到学生数据或数据为空，将创建新的学生列表。
+        printf("No student data found or data is empty, new student list will be created.\n");
         head = createStudentList();
     }
 
@@ -228,29 +118,28 @@ int main()
     // 退出前保存学生数据
     if (saveStudentsToFile(head, "students.txt"))
     {
-        printf("Data saved successfully!\n"); // 数据保存成功！
+        printf("Data saved successfully!\n");
     }
     else
     {
-        printf("Data saving failed!\n"); // 数据保存失败！
+        printf("Data saving failed!\n");
     }
 
     // 释放链表内存
     freeStudentList(head);
 
-    printf("Thank you for using this system, goodbye!\n"); // 感谢使用本系统，再见！
+    printf("Thank you for using this system, goodbye!\n");
     return 0;
 }
 
 // 登录验证函数
 int login(char currentUser[])
 {
-    char username[MAX_NAME_LEN];
-    char password[MAX_PASSWORD_LEN];
+    char username[30];
+    char password[20];
     int attempts = 0;
-    const int MAX_ATTEMPTS = 3;
 
-    while (attempts < MAX_ATTEMPTS)
+    while (attempts < 3)
     {
         printf("Please enter username: ");
         scanf("%s", username);
@@ -266,7 +155,7 @@ int login(char currentUser[])
         else
         {
             attempts++;
-            printf("Username or password incorrect, you have %d more attempts.\n", MAX_ATTEMPTS - attempts);
+            printf("Username or password incorrect, you have %d more attempts.\n", 3 - attempts);
         }
     }
 
@@ -313,34 +202,34 @@ int verifyUser(const char *username, const char *password)
 // 显示主菜单
 void displayMenu()
 {
-    printf("\n=== Student Grade Management System ===\n");        // 学生成绩管理系统
-    printf("1. Add student information\n");                       // 添加学生信息
-    printf("2. Find student by ID\n");                            // 按学号查找学生
-    printf("3. Find student by name\n");                          // 按姓名查找学生
-    printf("4. Modify student information\n");                    // 修改学生信息
-    printf("5. Delete student information\n");                    // 删除学生信息
-    printf("6. Display all student information\n");               // 显示所有学生信息
-    printf("7. Sort by ID\n");                                    // 按学号排序
-    printf("8. Sort by total score\n");                           // 按总分排序
-    printf("9. Display course statistics\n");                     // 显示课程统计
-    printf("10. Display excellent students (above 90 points)\n"); // 显示优秀学生（90分以上）
-    printf("11. Display failing students\n");                     // 显示不及格学生
-    printf("12. Display students below average\n");               // 显示低于平均分的学生
-    printf("13. Save data to file\n");                            // 保存数据到文件
-    printf("14. Register new user\n");                            // 注册新用户
-    printf("15. Delete user\n");                                  // 删除用户
-    printf("16. Change password\n");                              // 修改密码
-    printf("17. View current user\n");                            // 查看当前登录用户
-    printf("18. Export grades to CSV\n");                         // 导出成绩为CSV
-    printf("0. Exit system\n");                                   // 退出系统
+    printf("\n=== Student Grade Management System ===\n");
+    printf("1. Add student information\n");
+    printf("2. Find student by ID\n");
+    printf("3. Find student by name\n");
+    printf("4. Modify student information\n");
+    printf("5. Delete student information\n");
+    printf("6. Display all student information\n");
+    printf("7. Sort by ID\n");
+    printf("8. Sort by total score\n");
+    printf("9. Display course statistics\n");
+    printf("10. Display students above specified score\n");
+    printf("11. Display failing students\n");
+    printf("12. Display students below average\n");
+    printf("13. Save data to file\n");
+    printf("14. Register new user\n");
+    printf("15. Delete user\n");
+    printf("16. Change password\n");
+    printf("17. View current user\n");
+    printf("18. Export grades to CSV\n");
+    printf("0. Exit system\n");
 }
 
 // 处理用户选择
 void processChoice(int choice, Student **head, char currentUser[])
 {
     char id[20];
-    char name[MAX_NAME_LEN];
-    float averages[COURSE_NUM];
+    char name[30];
+    float averages[5];
 
     switch (choice)
     {
@@ -353,28 +242,60 @@ void processChoice(int choice, Student **head, char currentUser[])
         rankStudentsByTotal(*head);
         break;
     case 2:
-        printf("Please enter the ID of the student to find: ");
-        scanf("%s", id);
-        findStudentById(*head, id);
+        while (1)
+        {
+            printf("Please enter the ID of the student to find (or -1 to return to main menu): ");
+            scanf("%s", id);
+            if (strcmp(id, "-1") == 0)
+            {
+                printf("Returning to main menu.\n");
+                break;
+            }
+            findStudentById(*head, id);
+        }
         break;
     case 3:
-        printf("Please enter the name of the student to find: ");
-        scanf("%s", name);
-        findStudentByName(*head, name);
+        while (1)
+        {
+            printf("Please enter the name of the student to find (or -1 to return to main menu): ");
+            scanf("%s", name);
+            if (strcmp(name, "-1") == 0)
+            {
+                printf("Returning to main menu.\n");
+                break;
+            }
+            findStudentByName(*head, name);
+        }
         break;
     case 4:
-        printf("Please enter the ID of the student to modify: ");
-        scanf("%s", id);
-        *head = modifyStudentById(*head, id);
-        calculateAllTotalAndAverage(*head);
-        rankStudentsByTotal(*head);
+        while (1)
+        {
+            printf("Please enter the ID of the student to modify (or -1 to return to main menu): ");
+            scanf("%s", id);
+            if (strcmp(id, "-1") == 0)
+            {
+                printf("Returning to main menu.\n");
+                break;
+            }
+            *head = modifyStudentById(*head, id);
+            calculateAllTotalAndAverage(*head);
+            rankStudentsByTotal(*head);
+        }
         break;
     case 5:
-        printf("Please enter the ID of the student to delete: ");
-        scanf("%s", id);
-        *head = deleteStudentById(*head, id);
-        calculateAllTotalAndAverage(*head);
-        rankStudentsByTotal(*head);
+        while (1)
+        {
+            printf("Please enter the ID of the student to delete (or -1 to return to main menu): ");
+            scanf("%s", id);
+            if (strcmp(id, "-1") == 0)
+            {
+                printf("Returning to main menu.\n");
+                break;
+            }
+            *head = deleteStudentById(*head, id);
+            calculateAllTotalAndAverage(*head);
+            rankStudentsByTotal(*head);
+        }
         break;
     case 6:
         displayAllStudents(*head);
@@ -390,7 +311,7 @@ void processChoice(int choice, Student **head, char currentUser[])
     case 9:
         calculateCourseAverages(*head, averages);
         printf("\nCourse averages:\n");
-        for (int i = 0; i < COURSE_NUM; i++)
+        for (int i = 0; i < 5; i++)
         {
             printf("Course %d: %.2f\n", i + 1, averages[i]);
         }
@@ -441,7 +362,7 @@ Student *createStudentList()
     return NULL;
 }
 
-// 辅助函数：二次确认
+// 二次确认
 int confirmReturn()
 {
     char confirm[10];
@@ -453,122 +374,109 @@ int confirmReturn()
 // 添加学生信息
 Student *addStudent(Student *head)
 {
-    Student *newStudent = (Student *)malloc(sizeof(Student));
-    if (newStudent == NULL)
-    {
-        printf("Memory allocation failed!\n");
-        return head;
-    }
-
-    printf("Please enter ID: "); // 请输入学号：
-    scanf("%s", newStudent->id);
-    if (strcmp(newStudent->id, "0") == 0)
-    {
-        if (confirmReturn())
-        {
-            free(newStudent);
-            return head;
-        }
-    }
-
-    // 检查学号是否已存在
-    if (findStudentById(head, newStudent->id) != NULL)
-    {
-        printf("This ID already exists, cannot add!\n");
-        free(newStudent);
-        return head;
-    }
-
-    printf("Please enter name (or 0 to return to main menu): ");
-    scanf("%s", newStudent->name);
-    if (strcmp(newStudent->name, "0") == 0)
-    {
-        if (confirmReturn())
-        {
-            free(newStudent);
-            return head;
-        }
-    }
-
-    // 性别输入合法性判断，只允许male或female
     while (1)
     {
-        printf("Please enter gender (male/female, or 0 to return): ");
-        scanf("%s", newStudent->gender);
-        if (strcmp(newStudent->gender, "0") == 0)
+        Student *newStudent = (Student *)malloc(sizeof(Student));
+        if (newStudent == NULL)
         {
-            if (confirmReturn())
+            printf("Memory allocation failed!\n");
+            return head;
+        }
+
+        printf("Please enter ID (or -1 to return to main menu): ");
+        scanf("%s", newStudent->id);
+        if (strcmp(newStudent->id, "-1") == 0)
+        {
+            printf("Returning to main menu.\n");
+            free(newStudent);
+            return head;
+        }
+
+        // 检查学号是否已存在
+        if (findStudentById(head, newStudent->id) != NULL)
+        {
+            printf("This ID already exists, cannot add!\n");
+            free(newStudent);
+            continue;
+        }
+
+        printf("Please enter name (or -1 to return to main menu): ");
+        scanf("%s", newStudent->name);
+        if (strcmp(newStudent->name, "-1") == 0)
+        {
+            printf("Returning to main menu.\n");
+            free(newStudent);
+            return head;
+        }
+
+        // 性别输入合法性判断，只允许male或female
+        while (1)
+        {
+            printf("Please enter gender (male/female, or -1 to return to main menu): ");
+            scanf("%s", newStudent->gender);
+            if (strcmp(newStudent->gender, "-1") == 0)
             {
+                printf("Returning to main menu.\n");
                 free(newStudent);
                 return head;
             }
-            else
+            if (strcmp(newStudent->gender, "male") == 0 || strcmp(newStudent->gender, "female") == 0)
             {
-                continue;
-            }
-        }
-        if (strcmp(newStudent->gender, "male") == 0 || strcmp(newStudent->gender, "female") == 0)
-        {
-            break;
-        }
-        else
-        {
-            printf("Invalid gender! Please enter 'male' or 'female'.\n");
-        }
-    }
-
-    printf("Please enter 5 course scores (0~100, or -1 to return):\n");
-    for (int i = 0; i < COURSE_NUM; i++)
-    {
-        float score;
-        while (1)
-        {
-            printf("Course %d: ", i + 1);
-            scanf("%f", &score);
-            if (score == -1)
-            {
-                if (confirmReturn())
-                {
-                    free(newStudent);
-                    return head;
-                }
-                else
-                {
-                    continue;
-                }
-            }
-            if (score >= 0 && score <= 100)
-            {
-                newStudent->scores[i] = score;
                 break;
             }
             else
             {
-                printf("Invalid score! Please enter a value between 0 and 100.\n"); // 分数无效！请输入0到100之间的值。
+                printf("Invalid gender! Please enter 'male' or 'female'.\n");
             }
         }
+
+        printf("Please enter 5 course scores (0~100, or -1 to return to main menu):\n");
+        for (int i = 0; i < 5; i++)
+        {
+            float score;
+            while (1)
+            {
+                printf("Course %d: ", i + 1);
+                scanf("%f", &score);
+                if (score == -1)
+                {
+                    printf("Returning to main menu.\n");
+                    free(newStudent);
+                    return head;
+                }
+                if (score >= 0 && score <= 100)
+                {
+                    newStudent->scores[i] = score;
+                    break;
+                }
+                else
+                {
+                    printf("Invalid score! Please enter a value between 0 and 100.\n");
+                }
+            }
+        }
+
+        // 计算总分和平均分
+        calculateTotalAndAverage(newStudent);
+
+        // 将新节点插入链表头部
+        newStudent->next = head;
+        head = newStudent;
+
+        printf("Student information added successfully!\n");
+        return head;
     }
-
-    // 计算总分和平均分
-    calculateTotalAndAverage(newStudent);
-
-    // 将新节点插入链表头部
-    newStudent->next = head;
-    head = newStudent;
-
-    printf("Student information added successfully!\n"); // 学生信息添加成功！
-    return head;
 }
 
 // 计算单个学生的总分和平均分
 void calculateTotalAndAverage(Student *student)
 {
     student->total = 0;
-    for (int i = 0; i < COURSE_NUM; i++)
+    for (int i = 0; i < 5; i++)
     {
         student->total += student->scores[i];
     }
-    student->average = student->total / COURSE_NUM;
+    student->average = student->total / 5;
 }
 
 // 计算所有学生的总分和平均分
@@ -642,32 +550,45 @@ void rankStudentsByTotal(Student *head)
 // 根据学号查找学生
 Student *findStudentById(Student *head, const char *id)
 {
+    if (strcmp(id, "-1") == 0)
+    {
+        printf("Operation cancelled.\n");
+        return NULL;
+    }
+
     Student *current = head;
 
     while (current != NULL)
     {
         if (strcmp(current->id, id) == 0)
         {
-            printf("Student information found:\n");                                                // 找到学生信息：
-            printf("ID: %s, Name: %s, Gender: %s\n", current->id, current->name, current->gender); // 学号: %s, 姓名: %s, 性别: %s
-            printf("Scores: ");                                                                    // 成绩：
-            for (int i = 0; i < COURSE_NUM; i++)
-            {
-                printf("%.2f ", current->scores[i]);
-            }
-            printf("\nTotal: %.2f, Average: %.2f, Rank: %d\n", current->total, current->average, current->rank); // 总分: %.2f, 平均分: %.2f, 名次: %d
+            printf("\nStudent information found:\n");
+            printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
+                   "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+            printf("--------------------------------------------------------------------------------------------------------------\n");
+            printf("%-10s %-15s %-5s %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-5d\n",
+                   current->id, current->name, current->gender,
+                   current->scores[0], current->scores[1], current->scores[2], current->scores[3], current->scores[4],
+                   current->total, current->average, current->rank);
+            printf("--------------------------------------------------------------------------------------------------------------\n");
             return current;
         }
         current = current->next;
     }
 
-    printf("Student with ID %s not found!\n", id); // 未找到学号为%s的学生！
+    printf("Student with ID %s not found!\n", id);
     return NULL;
 }
 
 // 根据姓名查找学生
 Student *findStudentByName(Student *head, const char *name)
 {
+    if (strcmp(name, "-1") == 0)
+    {
+        printf("Operation cancelled.\n");
+        return NULL;
+    }
+
     Student *current = head;
     int found = 0;
 
@@ -677,26 +598,27 @@ Student *findStudentByName(Student *head, const char *name)
         {
             if (!found)
             {
-                printf("Student information found:\n");
+                printf("\nStudent information found:\n");
+                printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
+                       "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+                printf("--------------------------------------------------------------------------------------------------------------\n");
                 found = 1;
             }
-            printf("ID: %s, Name: %s, Gender: %s\n", current->id, current->name, current->gender);
-            printf("Scores: ");
-            for (int i = 0; i < COURSE_NUM; i++)
-            {
-                printf("%.2f ", current->scores[i]);
-            }
-            printf("\nTotal: %.2f, Average: %.2f, Rank: %d\n\n", current->total, current->average, current->rank);
+            printf("%-10s %-15s %-5s %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-5d\n",
+                   current->id, current->name, current->gender,
+                   current->scores[0], current->scores[1], current->scores[2], current->scores[3], current->scores[4],
+                   current->total, current->average, current->rank);
         }
         current = current->next;
     }
 
     if (!found)
     {
-        printf("Student with name %s not found!\n", name); // 未找到姓名为%s的学生！
+        printf("Student with name %s not found!\n", name);
         return NULL;
     }
 
+    printf("--------------------------------------------------------------------------------------------------------------\n");
     return head;
 }
 
@@ -714,7 +636,7 @@ int saveStudentsToFile(Student *head, const char *filename)
     while (current != NULL)
     {
         fprintf(file, "%s %s %s ", current->id, current->name, current->gender);
-        for (int i = 0; i < COURSE_NUM; i++)
+        for (int i = 0; i < 5; i++)
         {
             fprintf(file, "%.2f ", current->scores[i]);
         }
@@ -743,7 +665,7 @@ Student *loadStudentsFromFile(const char *filename)
         int ret = fscanf(file, "%s %s %s ", temp.id, temp.name, temp.gender);
         if (ret != 3)
             break;
-        for (int i = 0; i < COURSE_NUM; i++)
+        for (int i = 0; i < 5; i++)
         {
             if (fscanf(file, "%f ", &temp.scores[i]) != 1)
                 break;
@@ -836,9 +758,22 @@ Student *deleteStudentById(Student *head, const char *id)
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n"); // 学生列表为空！
         printf("Student list is empty!\n");
         return NULL;
+    }
+
+    printf("Are you sure you want to delete student with ID %s? (y/n, or -1 to return to previous menu): ", id);
+    char confirm[10];
+    scanf("%s", confirm);
+    if (strcmp(confirm, "-1") == 0)
+    {
+        printf("Returning to previous menu.\n");
+        return head;
+    }
+    if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
+    {
+        printf("Deletion cancelled.\n");
+        return head;
     }
 
     // 如果要删除的是头节点
@@ -847,7 +782,7 @@ Student *deleteStudentById(Student *head, const char *id)
         Student *temp = head;
         head = head->next;
         free(temp);
-        printf("Student with ID %s deleted!\n", id); // 已删除学号为%s的学生！
+        printf("Student with ID %s deleted!\n", id);
         return head;
     }
 
@@ -883,13 +818,27 @@ Student *deleteStudentByName(Student *head, const char *name)
         return NULL;
     }
 
+    printf("Are you sure you want to delete student(s) with name %s? (y/n, or -1 to return to previous menu): ", name);
+    char confirm[10];
+    scanf("%s", confirm);
+    if (strcmp(confirm, "-1") == 0)
+    {
+        printf("Returning to previous menu.\n");
+        return head;
+    }
+    if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
+    {
+        printf("Deletion cancelled.\n");
+        return head;
+    }
+
     // 先处理头节点
     while (head != NULL && strcmp(head->name, name) == 0)
     {
         Student *temp = head;
         head = head->next;
         free(temp);
-        printf("Student with name %s deleted!\n", name); // 已删除姓名为%s的学生！
+        printf("Student with name %s deleted!\n", name);
     }
 
     if (head == NULL)
@@ -918,7 +867,7 @@ Student *deleteStudentByName(Student *head, const char *name)
 
     if (deleted > 0)
     {
-        printf("Deleted %d students with name %s!\n", deleted, name); // 已删除%d个姓名为%s的学生！
+        printf("Deleted %d students with name %s!\n", deleted, name);
     }
     else
     {
@@ -931,91 +880,119 @@ Student *deleteStudentByName(Student *head, const char *name)
 // 根据学号修改学生信息
 Student *modifyStudentById(Student *head, const char *id)
 {
+    if (strcmp(id, "-1") == 0)
+    {
+        printf("Operation cancelled.\n");
+        return head;
+    }
+
     Student *student = findStudentById(head, id);
     if (student == NULL)
     {
         return head;
     }
 
-    printf("\nPlease choose the information to modify:\n");
-    printf("1. Name\n");
-    printf("2. Gender\n");
-    printf("3. Scores\n");
-    printf("0. Cancel modification\n");
-
-    int choice;
-    printf("Please enter choice: ");
-    scanf("%d", &choice);
-
-    switch (choice)
+    while (1)
     {
-    case 0:
-        return head;
-    case 1:
-        printf("Please enter new name (or 0 to cancel): ");
-        scanf("%s", student->name);
-        if (strcmp(student->name, "0") == 0)
+        printf("\nPlease choose the information to modify:\n");
+        printf("1. Name\n");
+        printf("2. Gender\n");
+        printf("3. Scores\n");
+        printf("-1. Return to previous menu\n");
+
+        int choice;
+        printf("Please enter choice: ");
+        scanf("%d", &choice);
+        if (choice == -1)
         {
-            if (confirmReturn())
-                return head;
+            printf("Returning to previous menu.\n");
+            return head;
         }
-        printf("Name modified successfully!\n"); // 姓名修改成功！
-        break;
-    case 2:
-        // 修改性别时也加合法性判断
-        while (1)
+
+        switch (choice)
         {
-            printf("Please enter new gender (male/female, or 0 to cancel): ");
-            scanf("%s", student->gender);
-            if (strcmp(student->gender, "0") == 0)
+        case 1:
+            printf("Please enter new name (or -1 to cancel): ");
+            scanf("%s", student->name);
+            if (strcmp(student->name, "-1") == 0)
             {
-                if (confirmReturn())
-                    return head;
-                else
-                    continue;
+                printf("Operation cancelled.\n");
+                continue;
             }
-            if (strcmp(student->gender, "male") == 0 || strcmp(student->gender, "female") == 0)
-            {
-                printf("Gender modified successfully!\n"); // 性别修改成功！
-                break;
-            }
-            else
-            {
-                printf("Invalid gender! Please enter 'male' or 'female'.\n");
-            }
-        }
-        break;
-    case 3:
-        printf("Please enter new 5 course scores (0~100, or -1 to cancel):\n");
-        for (int i = 0; i < COURSE_NUM; i++)
-        {
-            float score;
+            printf("Name modified successfully!\n");
+            break;
+        case 2:
             while (1)
             {
-                printf("Course %d: ", i + 1);
-                scanf("%f", &score);
-                if (score == -1)
+                printf("Please enter new gender (male/female, or -1 to cancel): ");
+                scanf("%s", student->gender);
+                if (strcmp(student->gender, "-1") == 0)
                 {
-                    if (confirmReturn())
-                        return head;
-                    else
-                        continue;
+                    printf("Operation cancelled.\n");
+                    break;
                 }
-                if (score >= 0 && score <= 100)
+                if (strcmp(student->gender, "male") == 0 || strcmp(student->gender, "female") == 0)
                 {
-                    student->scores[i] = score;
+                    printf("Gender modified successfully!\n");
                     break;
                 }
                 else
                 {
-                    printf("Invalid score! Please enter a value between 0 and 100, or -1 to cancel.\n");
+                    printf("Invalid gender! Please enter 'male' or 'female'.\n");
                 }
             }
+            break;
+        case 3:
+            printf("\nPlease select which course to modify:\n");
+            printf("1. Course 1\n");
+            printf("2. Course 2\n");
+            printf("3. Course 3\n");
+            printf("4. Course 4\n");
+            printf("5. Course 5\n");
+            printf("-1. Return to previous menu\n");
+
+            int courseChoice;
+            printf("Please enter course number to modify (1-5, or -1 to cancel): ");
+            scanf("%d", &courseChoice);
+
+            if (courseChoice == -1)
+            {
+                printf("Returning to previous menu.\n");
+                continue;
+            }
+            else if (courseChoice >= 1 && courseChoice <= 5)
+            {
+                float score;
+                while (1)
+                {
+                    printf("Please enter new score for Course %d (0~100, or -1 to cancel): ", courseChoice);
+                    scanf("%f", &score);
+                    if (score == -1)
+                    {
+                        printf("Operation cancelled.\n");
+                        break;
+                    }
+                    if (score >= 0 && score <= 100)
+                    {
+                        student->scores[courseChoice - 1] = score;
+                        calculateTotalAndAverage(student);
+                        printf("Course %d score modified successfully!\n", courseChoice);
+                        break;
+                    }
+                    else
+                    {
+                        printf("Invalid score! Please enter a value between 0 and 100.\n");
+                    }
+                }
+            }
+            else
+            {
+                printf("Invalid course selection!\n");
+            }
+            break;
+        default:
+            printf("Invalid choice!\n");
         }
-        printf("Scores modified successfully!\n"); // 成绩修改成功！
-        break;
-    default:
-        printf("Invalid choice!\n"); // 无效的选择！
     }
 
     return head;
@@ -1059,41 +1036,42 @@ Student *modifyStudentByName(Student *head, const char *name)
             printf("1. ID\n");
             printf("2. Gender\n");
             printf("3. Scores\n");
-            printf("0. Cancel modification\n");
+            printf("-1. Cancel modification\n");
 
             int choice;
             printf("Please enter choice: ");
             scanf("%d", &choice);
+            if (choice == -1)
+            {
+                printf("Operation cancelled.\n");
+                return head;
+            }
 
             switch (choice)
             {
-            case 0:
-                return head;
             case 1:
-                printf("Please enter new ID (or 0 to cancel): ");
+                printf("Please enter new ID (or -1 to cancel): ");
                 scanf("%s", current->id);
-                if (strcmp(current->id, "0") == 0)
+                if (strcmp(current->id, "-1") == 0)
                 {
-                    if (confirmReturn())
-                        return head;
+                    printf("Operation cancelled.\n");
+                    return head;
                 }
-                printf("ID modified successfully!\n"); // 学号修改成功！
+                printf("ID modified successfully!\n");
                 break;
             case 2:
                 while (1)
                 {
-                    printf("Please enter new gender (male/female, or 0 to cancel): ");
+                    printf("Please enter new gender (male/female, or -1 to cancel): ");
                     scanf("%s", current->gender);
-                    if (strcmp(current->gender, "0") == 0)
+                    if (strcmp(current->gender, "-1") == 0)
                     {
-                        if (confirmReturn())
-                            return head;
-                        else
-                            continue;
+                        printf("Operation cancelled.\n");
+                        return head;
                     }
                     if (strcmp(current->gender, "male") == 0 || strcmp(current->gender, "female") == 0)
                     {
-                        printf("Gender modified successfully!\n"); // 性别修改成功！
+                        printf("Gender modified successfully!\n");
                         break;
                     }
                     else
@@ -1104,7 +1082,7 @@ Student *modifyStudentByName(Student *head, const char *name)
                 break;
             case 3:
                 printf("Please enter new 5 course scores (0~100, or -1 to cancel):\n");
-                for (int i = 0; i < COURSE_NUM; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     float score;
                     while (1)
@@ -1113,10 +1091,8 @@ Student *modifyStudentByName(Student *head, const char *name)
                         scanf("%f", &score);
                         if (score == -1)
                         {
-                            if (confirmReturn())
-                                return head;
-                            else
-                                continue;
+                            printf("Operation cancelled.\n");
+                            return head;
                         }
                         if (score >= 0 && score <= 100)
                         {
@@ -1125,14 +1101,15 @@ Student *modifyStudentByName(Student *head, const char *name)
                         }
                         else
                         {
-                            printf("Invalid score! Please enter a value between 0 and 100, or -1 to cancel.\n");
+                            printf("Invalid score! Please enter a value between 0 and 100.\n");
                         }
                     }
                 }
-                printf("Scores modified successfully!\n"); // 成绩修改成功！
+                calculateTotalAndAverage(current);
+                printf("Scores modified successfully!\n");
                 break;
             default:
-                printf("Invalid choice!\n"); // 无效的选择！
+                printf("Invalid choice!\n");
             }
             break;
         }
@@ -1301,11 +1278,11 @@ Student *sortStudentsByTotal(Student *head)
 }
 
 // 计算各门课程平均分
-void calculateCourseAverages(Student *head, float averages[COURSE_NUM])
+void calculateCourseAverages(Student *head, float averages[5])
 {
     if (head == NULL)
     {
-        for (int i = 0; i < COURSE_NUM; i++)
+        for (int i = 0; i < 5; i++)
         {
             averages[i] = 0.0;
         }
@@ -1313,14 +1290,14 @@ void calculateCourseAverages(Student *head, float averages[COURSE_NUM])
     }
 
     // 初始化总和和学生计数
-    float sums[COURSE_NUM] = {0};
+    float sums[5] = {0};
     int count = 0;
 
     // 累加所有学生的各科目成绩
     Student *current = head;
     while (current != NULL)
     {
-        for (int i = 0; i < COURSE_NUM; i++)
+        for (int i = 0; i < 5; i++)
         {
             sums[i] += current->scores[i];
         }
@@ -1329,7 +1306,7 @@ void calculateCourseAverages(Student *head, float averages[COURSE_NUM])
     }
 
     // 计算平均分
-    for (int i = 0; i < COURSE_NUM; i++)
+    for (int i = 0; i < 5; i++)
     {
         averages[i] = (count > 0) ? sums[i] / count : 0;
     }
@@ -1344,7 +1321,21 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
         return;
     }
 
-    printf("\nStudents with course %d score above %.2f:\n", course_index + 1, score);
+    printf("\nPlease enter the minimum score (0-100, or -1 to cancel): ");
+    float minScore;
+    scanf("%f", &minScore);
+    if (minScore == -1)
+    {
+        printf("Operation cancelled.\n");
+        return;
+    }
+    if (minScore < 0 || minScore > 100)
+    {
+        printf("Invalid score! Please enter a value between 0 and 100.\n");
+        return;
+    }
+
+    printf("\nStudents with course %d score above %.2f:\n", course_index + 1, minScore);
     printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
     printf("------------------------------------------\n");
 
@@ -1353,7 +1344,7 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
 
     while (current != NULL)
     {
-        if (current->scores[course_index] >= score)
+        if (current->scores[course_index] >= minScore)
         {
             printf("%-10s %-15s %-5s %-8.2f\n",
                    current->id, current->name, current->gender, current->scores[course_index]);
@@ -1364,12 +1355,12 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
 
     if (count == 0)
     {
-        printf("No student's course %d score above %.2f!\n", course_index + 1, score);
+        printf("No student's course %d score above %.2f!\n", course_index + 1, minScore);
     }
     else
     {
         printf("------------------------------------------\n");
-        printf("Total %d students' course %d score above %.2f.\n", count, course_index + 1, score);
+        printf("Total %d students' course %d score above %.2f.\n", count, course_index + 1, minScore);
     }
 }
 
@@ -1382,7 +1373,21 @@ void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
         return;
     }
 
-    printf("\nStudents with course %d score below %.2f:\n", course_index + 1, score);
+    printf("\nPlease enter the maximum score (0-100, or -1 to cancel): ");
+    float maxScore;
+    scanf("%f", &maxScore);
+    if (maxScore == -1)
+    {
+        printf("Operation cancelled.\n");
+        return;
+    }
+    if (maxScore < 0 || maxScore > 100)
+    {
+        printf("Invalid score! Please enter a value between 0 and 100.\n");
+        return;
+    }
+
+    printf("\nStudents with course %d score below %.2f:\n", course_index + 1, maxScore);
     printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
     printf("------------------------------------------\n");
 
@@ -1391,7 +1396,7 @@ void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
 
     while (current != NULL)
     {
-        if (current->scores[course_index] < score)
+        if (current->scores[course_index] < maxScore)
         {
             printf("%-10s %-15s %-5s %-8.2f\n",
                    current->id, current->name, current->gender, current->scores[course_index]);
@@ -1402,17 +1407,17 @@ void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
 
     if (count == 0)
     {
-        printf("No student's course %d score below %.2f!\n", course_index + 1, score);
+        printf("No student's course %d score below %.2f!\n", course_index + 1, maxScore);
     }
     else
     {
         printf("------------------------------------------\n");
-        printf("Total %d students' course %d score below %.2f.\n", count, course_index + 1, score);
+        printf("Total %d students' course %d score below %.2f.\n", count, course_index + 1, maxScore);
     }
 }
 
 // 显示低于平均分的学生
-void displayStudentsBelowAverage(Student *head, float averages[COURSE_NUM])
+void displayStudentsBelowAverage(Student *head, float averages[5])
 {
     if (head == NULL)
     {
@@ -1422,7 +1427,7 @@ void displayStudentsBelowAverage(Student *head, float averages[COURSE_NUM])
 
     printf("\nStudents below average:\n");
 
-    for (int i = 0; i < COURSE_NUM; i++)
+    for (int i = 0; i < 5; i++)
     {
         printf("\nCourse %d (Average: %.2f):\n", i + 1, averages[i]);
         printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
@@ -1454,7 +1459,7 @@ void displayStudentsBelowAverage(Student *head, float averages[COURSE_NUM])
     }
 }
 
-// 显示优秀学生（90分以上）
+// 显示优秀学生（指定分数以上）
 void displayExcellentStudents(Student *head)
 {
     if (head == NULL)
@@ -1463,12 +1468,54 @@ void displayExcellentStudents(Student *head)
         return;
     }
 
-    printf("\nExcellent students (above 90 points):\n");
-
-    for (int i = 0; i < COURSE_NUM; i++)
+    float minScores[5];
+    for (int course = 0; course < 5; course++)
     {
-        printf("\nCourse %d:\n", i + 1);
-        displayStudentsWithScoreAbove(head, 90.0, i);
+        printf("\nPlease enter the minimum score for Course %d (0-100, or -1 to return to main menu): ", course + 1);
+        scanf("%f", &minScores[course]);
+        if (minScores[course] == -1)
+        {
+            printf("Returning to main menu.\n");
+            return;
+        }
+        if (minScores[course] < 0 || minScores[course] > 100)
+        {
+            printf("Invalid score! Please enter a value between 0 and 100.\n");
+            course--; // 重试当前课程
+            continue;
+        }
+
+        // 立即显示当前课程的结果
+        printf("\nCourse %d (Students with scores above %.2f):\n", course + 1, minScores[course]);
+        printf("%-10s %-15s %-10s\n", "ID", "Name", "Score");
+        printf("----------------------------------------\n");
+
+        Student *current = head;
+        int courseCount = 0;
+
+        while (current != NULL)
+        {
+            if (current->scores[course] >= minScores[course])
+            {
+                courseCount++;
+                printf("%-10s %-15s %-10.2f\n",
+                       current->id,
+                       current->name,
+                       current->scores[course]);
+            }
+            current = current->next;
+        }
+
+        if (courseCount == 0)
+        {
+            printf("No students found with Course %d score above %.2f!\n", course + 1, minScores[course]);
+        }
+        else
+        {
+            printf("----------------------------------------\n");
+            printf("Total %d students have Course %d score above %.2f.\n",
+                   courseCount, course + 1, minScores[course]);
+        }
     }
 }
 
@@ -1494,7 +1541,7 @@ void displayFailingStudents(Student *head)
         int hasFailingScore = 0;
 
         // 先检查是否有不及格课程
-        for (int i = 0; i < COURSE_NUM; i++)
+        for (int i = 0; i < 5; i++)
         {
             if (current->scores[i] < 60.0)
             {
@@ -1509,8 +1556,8 @@ void displayFailingStudents(Student *head)
             totalFailingStudents++;
             printf("%-10s %-15s %-5s ", current->id, current->name, current->gender);
 
-            // 显示所有课程成绩，不及格的标记出来
-            for (int i = 0; i < COURSE_NUM; i++)
+            // 显示所有课程成绩，标记不及格
+            for (int i = 0; i < 5; i++)
             {
                 if (current->scores[i] < 60.0)
                 {
@@ -1541,10 +1588,24 @@ void displayFailingStudents(Student *head)
 // 导出成绩为CSV文件
 void exportGradesToCSV(Student *head)
 {
+    printf("Are you sure you want to export grades to CSV? (y/n, or -1 to return to main menu): ");
+    char confirm[10];
+    scanf("%s", confirm);
+    if (strcmp(confirm, "-1") == 0)
+    {
+        printf("Returning to main menu.\n");
+        return;
+    }
+    if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
+    {
+        printf("Export cancelled.\n");
+        return;
+    }
+
     FILE *file = fopen("students.csv", "w");
     if (file == NULL)
     {
-        printf("Cannot open students.csv for writing!\n"); // 无法打开students.csv进行写入！
+        printf("Cannot open students.csv for writing!\n");
         return;
     }
     // 写表头
@@ -1559,7 +1620,191 @@ void exportGradesToCSV(Student *head)
         current = current->next;
     }
     fclose(file);
-    printf("Exported to students.csv successfully!\n"); // 成绩已成功导出到students.csv！
+    printf("Exported to students.csv successfully!\n");
 }
 
-// 这里只实现了部分核心功能，其他函数可以根据需要补充实现
+// Register new user
+void registerUser()
+{
+    while (1)
+    {
+        char username[30];
+        char password[20];
+        User *users = NULL;
+        int count = loadUsers(&users);
+
+        printf("Please enter new username (or -1 to return to main menu): ");
+        scanf("%s", username);
+        if (strcmp(username, "-1") == 0)
+        {
+            printf("Returning to main menu.\n");
+            free(users);
+            return;
+        }
+
+        // Check if username exists
+        for (int i = 0; i < count; i++)
+        {
+            if (strcmp(users[i].username, username) == 0)
+            {
+                printf("Username already exists!\n");
+                free(users);
+                continue;
+            }
+        }
+
+        printf("Please enter new password (or -1 to return to main menu): ");
+        scanf("%s", password);
+        if (strcmp(password, "-1") == 0)
+        {
+            printf("Returning to main menu.\n");
+            free(users);
+            return;
+        }
+
+        users = (User *)realloc(users, sizeof(User) * (count + 1));
+        strcpy(users[count].username, username);
+        strcpy(users[count].password, password);
+        saveUsers(users, count + 1);
+        printf("User registered successfully!\n");
+        free(users);
+        return;
+    }
+}
+
+// Delete user
+void deleteUser()
+{
+    while (1)
+    {
+        char username[30];
+        User *users = NULL;
+        int count = loadUsers(&users);
+        if (count <= 1)
+        {
+            printf("At least one user must remain!\n");
+            free(users);
+            return;
+        }
+
+        printf("Please enter username to delete (or -1 to return to main menu): ");
+        scanf("%s", username);
+        if (strcmp(username, "-1") == 0)
+        {
+            printf("Returning to main menu.\n");
+            free(users);
+            return;
+        }
+
+        printf("Are you sure you want to delete user %s? (y/n, or -1 to return to previous menu): ", username);
+        char confirm[10];
+        scanf("%s", confirm);
+        if (strcmp(confirm, "-1") == 0)
+        {
+            printf("Returning to previous menu.\n");
+            free(users);
+            return;
+        }
+        if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
+        {
+            printf("Deletion cancelled.\n");
+            free(users);
+            return;
+        }
+
+        int found = 0;
+        for (int i = 0; i < count; i++)
+        {
+            if (strcmp(users[i].username, username) == 0)
+            {
+                found = 1;
+                for (int j = i; j < count - 1; j++)
+                {
+                    users[j] = users[j + 1];
+                }
+                break;
+            }
+        }
+        if (!found)
+        {
+            printf("Username not found!\n");
+            free(users);
+            continue;
+        }
+        saveUsers(users, count - 1);
+        printf("User deleted successfully!\n");
+        free(users);
+        return;
+    }
+}
+
+// Change password
+void changePassword()
+{
+    while (1)
+    {
+        char username[30];
+        char oldPassword[20];
+        char newPassword[20];
+        User *users = NULL;
+        int count = loadUsers(&users);
+        int found = 0;
+
+        printf("Please enter your username (or -1 to return to main menu): ");
+        scanf("%s", username);
+        if (strcmp(username, "-1") == 0)
+        {
+            printf("Returning to main menu.\n");
+            free(users);
+            return;
+        }
+
+        printf("Please enter your old password (or -1 to return to main menu): ");
+        scanf("%s", oldPassword);
+        if (strcmp(oldPassword, "-1") == 0)
+        {
+            printf("Returning to main menu.\n");
+            free(users);
+            return;
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, oldPassword) == 0)
+            {
+                printf("Please enter your new password (or -1 to return to main menu): ");
+                scanf("%s", newPassword);
+                if (strcmp(newPassword, "-1") == 0)
+                {
+                    printf("Returning to main menu.\n");
+                    free(users);
+                    return;
+                }
+                strcpy(users[i].password, newPassword);
+                saveUsers(users, count);
+                printf("Password changed successfully!\n");
+                found = 1;
+                break;
+            }
+        }
+        if (!found)
+        {
+            printf("Username or old password incorrect!\n");
+            free(users);
+            continue;
+        }
+        free(users);
+        return;
+    }
+}
+
+// 查看当前登录用户
+void viewCurrentUser(char currentUser[])
+{
+    if (strcmp(currentUser, "") == 0)
+    {
+        printf("No user is currently logged in.\n");
+        return;
+    }
+    printf("Current logged in user: %s\n", currentUser);
+}
