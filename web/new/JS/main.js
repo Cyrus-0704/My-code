@@ -1,7 +1,3 @@
-/**
- * 咸鱼万事屋网站JavaScript功能
- */
-
 // 服务页面选项卡切换功能
 function openService(serviceName) {
     const contents = document.getElementsByClassName("service-content");

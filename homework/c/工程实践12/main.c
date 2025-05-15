@@ -112,7 +112,6 @@ int main()
         }
     } while (!exitFlag);
 
-    // 退出前保存学生数据
     if (saveStudentsToFile(head, "students.txt"))
     {
         printf("Data saved successfully!\n");
@@ -128,7 +127,6 @@ int main()
     return 0;
 }
 
-// 登录验证函数
 int login(char currentUser[])
 {
     char username[30];
@@ -144,7 +142,7 @@ int login(char currentUser[])
 
         if (verifyUser(username, password))
         {
-            strcpy(currentUser, username); // 保存当前登录用户名
+            strcpy(currentUser, username);
             printf("Login successful! Welcome to the student grade management system.\n");
             return 1;
         }
@@ -166,10 +164,8 @@ int verifyUser(const char *username, const char *password)
 
     if (count <= 0)
     {
-        // 如果没有用户数据，创建默认管理员账户
         if (strcmp(username, "admin") == 0 && strcmp(password, "admin") == 0)
         {
-            // 创建默认用户并保存
             User defaultUser;
             strcpy(defaultUser.username, "admin");
             strcpy(defaultUser.password, "admin");
@@ -179,7 +175,6 @@ int verifyUser(const char *username, const char *password)
         return 0;
     }
 
-    // 遍历用户列表验证用户名和密码
     for (int i = 0; i < count; i++)
     {
         if (strcmp(username, users[i].username) == 0 &&
@@ -310,26 +305,26 @@ void processChoice(int choice, Student **head, char currentUser[])
         }
         break;
     case 10:
+    {
+        int course_index;
+        printf("Please enter course number (1-5, or -1 to return to main menu): ");
+        scanf("%d", &course_index);
+        if (course_index == -1)
         {
-            int course_index;
-            printf("Please enter course number (1-5, or -1 to return to main menu): ");
-            scanf("%d", &course_index);
-            if (course_index == -1)
-            {
-                printf("Returning to main menu.\n");
-                break;
-            }
-            if (course_index < 1 || course_index > 5)
-            {
-                printf("Invalid course number!\n");
-                break;
-            }
-            displayStudentsWithScoreAbove(*head, 0, course_index - 1); // 0无实际意义
+            printf("Returning to main menu.\n");
+            break;
         }
-        break;
+        if (course_index < 1 || course_index > 5)
+        {
+            printf("Invalid course number!\n");
+            break;
+        }
+        displayStudentsWithScoreAbove(*head, 0, course_index - 1); // 0无实际意义
+    }
+    break;
     case 11:
         displayFailingStudents(*head);
-        break;  
+        break;
     case 12:
         calculateCourseAverages(*head, averages);
         displayStudentsBelowAverage(*head, averages);
@@ -398,7 +393,6 @@ Student *addStudent(Student *head)
             return head;
         }
 
-        // 检查学号是否已存在
         if (findStudentById(head, newStudent->id) != NULL)
         {
             printf("This ID already exists, cannot add!\n");
@@ -415,7 +409,6 @@ Student *addStudent(Student *head)
             return head;
         }
 
-        // 判断性别合法？只能有男or女
         while (1)
         {
             printf("Please enter gender (male/female, or -1 to return to main menu): ");
@@ -462,10 +455,8 @@ Student *addStudent(Student *head)
             }
         }
 
-        // 计算总分和平均分
         calculateTotalAndAverage(newStudent);
 
-        // 将新节点插入链表头部
         newStudent->next = head;
         head = newStudent;
 
@@ -474,7 +465,6 @@ Student *addStudent(Student *head)
     }
 }
 
-// 计算单个学生的总分和平均分
 void calculateTotalAndAverage(Student *student)
 {
     student->total = 0;
@@ -485,7 +475,6 @@ void calculateTotalAndAverage(Student *student)
     student->average = student->total / 5;
 }
 
-// 计算所有学生的总分和平均分
 void calculateAllTotalAndAverage(Student *head)
 {
     Student *current = head;
@@ -496,10 +485,9 @@ void calculateAllTotalAndAverage(Student *head)
     }
 }
 
-// 根据总分为学生排名
 void rankStudentsByTotal(Student *head)
 {
-    // 先计算学生人数
+
     int count = 0;
     Student *current = head;
     while (current != NULL)
@@ -508,13 +496,11 @@ void rankStudentsByTotal(Student *head)
         current = current->next;
     }
 
-    // 如果没有学生，直接返回
     if (count == 0)
     {
         return;
     }
 
-    // 创建学生指针数组，方便排序
     Student **students = (Student **)malloc(sizeof(Student *) * count);
     if (students == NULL)
     {
@@ -522,7 +508,6 @@ void rankStudentsByTotal(Student *head)
         return;
     }
 
-    // 填充数组
     current = head;
     for (int i = 0; i < count; i++)
     {
@@ -530,7 +515,6 @@ void rankStudentsByTotal(Student *head)
         current = current->next;
     }
 
-    // 按总分降序排序
     for (int i = 0; i < count - 1; i++)
     {
         for (int j = 0; j < count - i - 1; j++)
@@ -544,7 +528,6 @@ void rankStudentsByTotal(Student *head)
         }
     }
 
-    // 设置名次
     for (int i = 0; i < count; i++)
     {
         students[i]->rank = i + 1;
@@ -626,10 +609,9 @@ Student *findStudentByName(Student *head, const char *name)
     return head;
 }
 
-// 保存学生数据到文件（文本格式）
 int saveStudentsToFile(Student *head, const char *filename)
 {
-    (void)filename; // 消除未使用参数警告
+    (void)filename;
     FILE *file = fopen("students.txt", "w");
     if (file == NULL)
     {
@@ -651,10 +633,9 @@ int saveStudentsToFile(Student *head, const char *filename)
     return 1;
 }
 
-// 从文件加载学生数据（文本格式）
 Student *loadStudentsFromFile(const char *filename)
 {
-    (void)filename; // 消除未使用参数警告
+    (void)filename;
     FILE *file = fopen("students.txt", "r");
     if (file == NULL)
     {
@@ -737,12 +718,12 @@ int loadUsers(User **users)
         fclose(file);
         return 0;
     }
-    while (!feof(file)) // 如果文件未结束，则继续读取
+    while (!feof(file))
     {
         if (count >= capacity)
         {
             capacity *= 2;
-            *users = (User *)realloc(*users, sizeof(User) * capacity); // 如果用户数量超过容量，则重新分配内存
+            *users = (User *)realloc(*users, sizeof(User) * capacity);
         }
         User temp;
         if (fscanf(file, "%s %s", temp.username, temp.password) == 2)
@@ -776,7 +757,6 @@ Student *deleteStudentById(Student *head, const char *id)
         return head;
     }
 
-    // 如果要删除的是头节点
     if (strcmp(head->id, id) == 0)
     {
         Student *temp = head;
@@ -786,14 +766,12 @@ Student *deleteStudentById(Student *head, const char *id)
         return head;
     }
 
-    // 查找要删除的节点及其前一个节点
     Student *current = head;
     while (current->next != NULL && strcmp(current->next->id, id) != 0)
     {
         current = current->next;
     }
 
-    // 如果找到了要删除的节点
     if (current->next != NULL)
     {
         Student *temp = current->next;
@@ -831,7 +809,6 @@ Student *deleteStudentByName(Student *head, const char *name)
         return head;
     }
 
-    // 先处理头节点
     while (head != NULL && strcmp(head->name, name) == 0)
     {
         Student *temp = head;
@@ -845,7 +822,6 @@ Student *deleteStudentByName(Student *head, const char *name)
         return NULL;
     }
 
-    // 处理其余节点
     Student *current = head;
     int deleted = 0;
 
@@ -998,7 +974,6 @@ Student *modifyStudentById(Student *head, const char *id)
 
 Student *modifyStudentByName(Student *head, const char *name)
 {
-    // 查找是否有多个同名学生
     int count = 0;
     Student *current = head;
 
@@ -1023,7 +998,6 @@ Student *modifyStudentByName(Student *head, const char *name)
         return head;
     }
 
-    // 只有一个学生时，可以直接修改
     current = head;
     while (current != NULL)
     {
@@ -1156,7 +1130,6 @@ Student *sortStudentsById(Student *head)
         current = current->next;
     }
 
-    // 创建学生指针数组
     Student **students = (Student **)malloc(sizeof(Student *) * count);
     if (students == NULL)
     {
@@ -1164,7 +1137,6 @@ Student *sortStudentsById(Student *head)
         return head;
     }
 
-    // 填充数组
     current = head;
     for (int i = 0; i < count; i++)
     {
@@ -1172,14 +1144,12 @@ Student *sortStudentsById(Student *head)
         current = current->next;
     }
 
-    // 按学号排序（冒泡排序）
     for (int i = 0; i < count - 1; i++)
     {
         for (int j = 0; j < count - i - 1; j++)
         {
             if (strcmp(students[j]->id, students[j + 1]->id) > 0)
             {
-                // 交换指针
                 Student *temp = students[j];
                 students[j] = students[j + 1];
                 students[j + 1] = temp;
@@ -1187,17 +1157,14 @@ Student *sortStudentsById(Student *head)
         }
     }
 
-    // 重新链接节点
     for (int i = 0; i < count - 1; i++)
     {
         students[i]->next = students[i + 1];
     }
     students[count - 1]->next = NULL;
 
-    // 保存新的链表头
     head = students[0];
 
-    // 释放数组
     free(students);
 
     return head;
@@ -1210,7 +1177,6 @@ Student *sortStudentsByTotal(Student *head)
         return head;
     }
 
-    // 先计算学生人数
     int count = 0;
     Student *current = head;
     while (current != NULL)
@@ -1219,7 +1185,6 @@ Student *sortStudentsByTotal(Student *head)
         current = current->next;
     }
 
-    // 创建学生指针数组，方便排序
     Student **students = (Student **)malloc(sizeof(Student *) * count);
     if (students == NULL)
     {
@@ -1227,7 +1192,6 @@ Student *sortStudentsByTotal(Student *head)
         return head;
     }
 
-    // 填充数组
     current = head;
     for (int i = 0; i < count; i++)
     {
@@ -1235,7 +1199,6 @@ Student *sortStudentsByTotal(Student *head)
         current = current->next;
     }
 
-    // 按总分降序排序（冒泡排序）
     for (int i = 0; i < count - 1; i++)
     {
         for (int j = 0; j < count - i - 1; j++)
@@ -1249,29 +1212,24 @@ Student *sortStudentsByTotal(Student *head)
         }
     }
 
-    // 设置名次
     for (int i = 0; i < count; i++)
     {
         students[i]->rank = i + 1;
     }
 
-    // 重新链接节点，按总分排序
     for (int i = 0; i < count - 1; i++)
     {
         students[i]->next = students[i + 1];
     }
     students[count - 1]->next = NULL;
 
-    // 保存新的链表头
     head = students[0];
 
-    // 释放数组
     free(students);
 
     return head;
 }
 
-// 计算各门课程平均分
 void calculateCourseAverages(Student *head, float averages[5])
 {
     if (head == NULL)
@@ -1283,11 +1241,9 @@ void calculateCourseAverages(Student *head, float averages[5])
         return;
     }
 
-    // 初始化总和和学生计数
     float sums[5] = {0};
     int count = 0;
 
-    // 累加所有学生的各科目成绩
     Student *current = head;
     while (current != NULL)
     {
@@ -1299,14 +1255,12 @@ void calculateCourseAverages(Student *head, float averages[5])
         current = current->next;
     }
 
-    // 计算平均分
     for (int i = 0; i < 5; i++)
     {
         averages[i] = (count > 0) ? sums[i] / count : 0;
     }
 }
 
-// 显示成绩在特定值以上的学生
 void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
 {
     if (head == NULL)
@@ -1471,7 +1425,6 @@ void displayFailingStudents(Student *head)
     {
         int hasFailingScore = 0;
 
-        // 先检查是否有不及格课程
         for (int i = 0; i < 5; i++)
         {
             if (current->scores[i] < 60.0)
@@ -1481,18 +1434,16 @@ void displayFailingStudents(Student *head)
             }
         }
 
-        // 如果有不及格课程，显示学生信息
         if (hasFailingScore)
         {
             totalFailingStudents++;
             printf("%-10s %-15s %-5s ", current->id, current->name, current->gender);
 
-            // 显示所有课程成绩，标记不及格
             for (int i = 0; i < 5; i++)
             {
                 if (current->scores[i] < 60.0)
                 {
-                    printf("%-10.2f*", current->scores[i]); // 不及格成绩加*标记
+                    printf("%-10.2f*", current->scores[i]);
                 }
                 else
                 {
@@ -1570,7 +1521,6 @@ void registerUser()
             return;
         }
 
-        // 检查是否存在该用户
         for (int i = 0; i < count; i++)
         {
             if (strcmp(users[i].username, username) == 0)
