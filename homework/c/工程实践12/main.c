@@ -20,10 +20,10 @@ typedef struct Student
     struct Student *next;
 } Student;
 
-// å‡½æ•°å£°æ˜
-// 1. ç”¨æˆ·ç™»å½•ç›¸å…³
+// º¯ÊıÉùÃ÷
+// 1. ÓÃ»§µÇÂ¼Ïà¹Ø
 int login(char currentUser[]);
-int verifyUser(const char *username, const char *password);
+int verifyUser(  char *username,   char *password);
 void saveUsers(User *users, int count);
 int loadUsers(User **users);
 void exportGradesToCSV(Student *head);
@@ -32,19 +32,19 @@ void deleteUser();
 void changePassword();
 void viewCurrentUser(char currentUser[]);
 
-// 2. å­¦ç”Ÿä¿¡æ¯ç®¡ç†
+// 2. Ñ§ÉúĞÅÏ¢¹ÜÀí
 Student *createStudentList();
 Student *addStudent(Student *head);
-Student *deleteStudentById(Student *head, const char *id);
-Student *deleteStudentByName(Student *head, const char *name);
-Student *findStudentById(Student *head, const char *id);
-Student *findStudentByName(Student *head, const char *name);
-Student *modifyStudentById(Student *head, const char *id);
-Student *modifyStudentByName(Student *head, const char *name);
+Student *deleteStudentById(Student *head,   char *id);
+Student *deleteStudentByName(Student *head,   char *name);
+Student *findStudentById(Student *head,   char *id);
+Student *findStudentByName(Student *head,   char *name);
+Student *modifyStudentById(Student *head,   char *id);
+Student *modifyStudentByName(Student *head,   char *name);
 void displayAllStudents(Student *head);
 void freeStudentList(Student *head);
 
-// 3. æˆç»©ç»Ÿè®¡ä¸åˆ†æ
+// 3. ³É¼¨Í³¼ÆÓë·ÖÎö
 void calculateTotalAndAverage(Student *student);
 void calculateAllTotalAndAverage(Student *head);
 void rankStudentsByTotal(Student *head);
@@ -56,11 +56,11 @@ void calculateCourseAverages(Student *head, float averages[5]);
 void displayStudentsBelowAverage(Student *head, float averages[5]);
 void displayFailingStudents(Student *head);
 
-// 4. æ–‡ä»¶æ“ä½œ
-int saveStudentsToFile(Student *head, const char *filename);
-Student *loadStudentsFromFile(const char *filename);
+// 4. ÎÄ¼ş²Ù×÷
+int saveStudentsToFile(Student *head,   char *filename);
+Student *loadStudentsFromFile(  char *filename);
 
-// 5. èœå•å’Œä¸»ç¨‹åº
+// 5. ²Ëµ¥ºÍÖ÷³ÌĞò
 void displayMenu();
 void processChoice(int choice, Student **head, char currentUser[]);
 
@@ -75,27 +75,27 @@ int main()
     loggedIn = login(currentUser);
     if (!loggedIn)
     {
-        printf("Login failed, program exiting!\n");
+        printf("µÇÂ¼Ê§°Ü£¬³ÌĞòÍË³ö£¡\n");
         return 1;
     }
 
     head = loadStudentsFromFile("students.txt");
     if (head == NULL)
     {
-        printf("No student data found or data is empty, new student list will be created.\n");
+        printf("Î´ÕÒµ½Ñ§ÉúÊı¾İ»òÊı¾İÎª¿Õ£¬½«´´½¨ĞÂµÄÑ§ÉúÁĞ±í¡£\n");
         head = createStudentList();
     }
 
-    // ä¸»èœå•å¾ªç¯ï¼Œtillé€‰æ‹©é€€å‡º
+    // Ö÷²Ëµ¥Ñ­»·£¬Ö±µ½Ñ¡ÔñÍË³ö
     do
     {
         displayMenu();
-        printf("Please enter your choice: ");
+        printf("ÇëÊäÈëÄúµÄÑ¡Ôñ: ");
         scanf("%d", &choice);
         if (choice == 0)
         {
             char confirm[10];
-            printf("Are you sure you want to exit? (yes/no): ");
+            printf("È·¶¨ÒªÍË³öÂğ£¿(yes/no): ");
             scanf("%s", confirm);
             if (strcmp(confirm, "yes") == 0)
             {
@@ -114,16 +114,16 @@ int main()
 
     if (saveStudentsToFile(head, "students.txt"))
     {
-        printf("Data saved successfully!\n");
+        printf("Êı¾İ±£´æ³É¹¦£¡\n");
     }
     else
     {
-        printf("Data saving failed!\n");
+        printf("Êı¾İ±£´æÊ§°Ü£¡\n");
     }
 
     freeStudentList(head);
 
-    printf("Thank you for using this system, goodbye!\n");
+    printf("¸ĞĞ»Ê¹ÓÃ±¾ÏµÍ³£¬ÔÙ¼û£¡\n");
     return 0;
 }
 
@@ -135,29 +135,29 @@ int login(char currentUser[])
 
     while (attempts < 3)
     {
-        printf("Please enter username: ");
+        printf("ÇëÊäÈëÓÃ»§Ãû: ");
         scanf("%s", username);
-        printf("Please enter password: ");
+        printf("ÇëÊäÈëÃÜÂë: ");
         scanf("%s", password);
 
         if (verifyUser(username, password))
         {
             strcpy(currentUser, username);
-            printf("Login successful! Welcome to the student grade management system.\n");
+            printf("µÇÂ¼³É¹¦£¡»¶Ó­Ê¹ÓÃÑ§Éú³É¼¨¹ÜÀíÏµÍ³¡£\n");
             return 1;
         }
         else
         {
             attempts++;
-            printf("Username or password incorrect, you have %d more attempts.\n", 3 - attempts);
+            printf("ÓÃ»§Ãû»òÃÜÂë´íÎó£¬Äú»¹ÓĞ %d ´Î³¢ÊÔ»ú»á¡£\n", 3 - attempts);
         }
     }
 
-    printf("Attempts exceeded, login failed!\n");
+    printf("³¢ÊÔ´ÎÊıÒÑÓÃÍê£¬µÇÂ¼Ê§°Ü£¡\n");
     return 0;
 }
 
-int verifyUser(const char *username, const char *password)
+int verifyUser(  char *username,   char *password)
 {
     User *users = NULL;
     int count = loadUsers(&users);
@@ -166,10 +166,10 @@ int verifyUser(const char *username, const char *password)
     {
         if (strcmp(username, "admin") == 0 && strcmp(password, "admin") == 0)
         {
-            User defaultUser;
-            strcpy(defaultUser.username, "admin");
-            strcpy(defaultUser.password, "admin");
-            saveUsers(&defaultUser, 1);
+            User InitialUser;
+            strcpy(InitialUser.username, "admin");
+            strcpy(InitialUser.password, "admin");
+            saveUsers(&InitialUser, 1);
             return 1;
         }
         return 0;
@@ -191,26 +191,26 @@ int verifyUser(const char *username, const char *password)
 
 void displayMenu()
 {
-    printf("\n=== Student Grade Management System ===\n");
-    printf("1. Add student information\n");
-    printf("2. Find student by ID\n");
-    printf("3. Find student by name\n");
-    printf("4. Modify student information\n");
-    printf("5. Delete student information\n");
-    printf("6. Display all student information\n");
-    printf("7. Sort by ID\n");
-    printf("8. Sort by total score\n");
-    printf("9. Display course statistics\n");
-    printf("10. Display students above specified score\n");
-    printf("11. Display failing students\n");
-    printf("12. Display students below average\n");
-    printf("13. Save data to file\n");
-    printf("14. Register new user\n");
-    printf("15. Delete user\n");
-    printf("16. Change password\n");
-    printf("17. View current user\n");
-    printf("18. Export grades to CSV\n");
-    printf("0. Exit system\n");
+    printf("\n=== Ñ§Éú³É¼¨¹ÜÀíÏµÍ³ ===\n");
+    printf("1. Ìí¼ÓÑ§ÉúĞÅÏ¢\n");
+    printf("2. °´Ñ§ºÅ²éÕÒÑ§Éú\n");
+    printf("3. °´ĞÕÃû²éÕÒÑ§Éú\n");
+    printf("4. ĞŞ¸ÄÑ§ÉúĞÅÏ¢\n");
+    printf("5. É¾³ıÑ§ÉúĞÅÏ¢\n");
+    printf("6. ÏÔÊ¾ËùÓĞÑ§ÉúĞÅÏ¢\n");
+    printf("7. °´Ñ§ºÅÅÅĞò\n");
+    printf("8. °´×Ü·ÖÅÅĞò\n");
+    printf("9. ÏÔÊ¾¿Î³ÌÍ³¼ÆĞÅÏ¢\n");
+    printf("10. ÏÔÊ¾¸ßÓÚÖ¸¶¨·ÖÊıµÄÑ§Éú\n");
+    printf("11. ÏÔÊ¾²»¼°¸ñÑ§Éú\n");
+    printf("12. ÏÔÊ¾µÍÓÚÆ½¾ù·ÖµÄÑ§Éú\n");
+    printf("13. ±£´æÊı¾İµ½ÎÄ¼ş\n");
+    printf("14. ×¢²áĞÂÓÃ»§\n");
+    printf("15. É¾³ıÓÃ»§\n");
+    printf("16. ĞŞ¸ÄÃÜÂë\n");
+    printf("17. ²é¿´µ±Ç°ÓÃ»§\n");
+    printf("18. µ¼³ö³É¼¨µ½CSV\n");
+    printf("0. ÍË³öÏµÍ³\n");
 }
 
 void processChoice(int choice, Student **head, char currentUser[])
@@ -222,7 +222,7 @@ void processChoice(int choice, Student **head, char currentUser[])
     switch (choice)
     {
     case 0:
-        printf("Saving data and exiting...\n");
+        printf("ÕıÔÚ±£´æÊı¾İ²¢ÍË³ö...\n");
         break;
     case 1:
         *head = addStudent(*head);
@@ -232,11 +232,11 @@ void processChoice(int choice, Student **head, char currentUser[])
     case 2:
         while (1)
         {
-            printf("Please enter the ID of the student to find (or -1 to return to main menu): ");
+            printf("ÇëÊäÈëÒª²éÕÒµÄÑ§ÉúÑ§ºÅ£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
             scanf("%s", id);
             if (strcmp(id, "-1") == 0)
             {
-                printf("Returning to main menu.\n");
+                printf("·µ»ØÖ÷²Ëµ¥¡£\n");
                 break;
             }
             findStudentById(*head, id);
@@ -245,11 +245,11 @@ void processChoice(int choice, Student **head, char currentUser[])
     case 3:
         while (1)
         {
-            printf("Please enter the name of the student to find (or -1 to return to main menu): ");
+            printf("ÇëÊäÈëÒª²éÕÒµÄÑ§ÉúĞÕÃû£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
             scanf("%s", name);
             if (strcmp(name, "-1") == 0)
             {
-                printf("Returning to main menu.\n");
+                printf("·µ»ØÖ÷²Ëµ¥¡£\n");
                 break;
             }
             findStudentByName(*head, name);
@@ -258,11 +258,11 @@ void processChoice(int choice, Student **head, char currentUser[])
     case 4:
         while (1)
         {
-            printf("Please enter the ID of the student to modify (or -1 to return to main menu): ");
+            printf("ÇëÊäÈëÒªĞŞ¸ÄµÄÑ§ÉúÑ§ºÅ£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
             scanf("%s", id);
             if (strcmp(id, "-1") == 0)
             {
-                printf("Returning to main menu.\n");
+                printf("·µ»ØÖ÷²Ëµ¥¡£\n");
                 break;
             }
             *head = modifyStudentById(*head, id);
@@ -273,11 +273,11 @@ void processChoice(int choice, Student **head, char currentUser[])
     case 5:
         while (1)
         {
-            printf("Please enter the ID of the student to delete (or -1 to return to main menu): ");
+            printf("ÇëÊäÈëÒªÉ¾³ıµÄÑ§ÉúÑ§ºÅ£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
             scanf("%s", id);
             if (strcmp(id, "-1") == 0)
             {
-                printf("Returning to main menu.\n");
+                printf("·µ»ØÖ÷²Ëµ¥¡£\n");
                 break;
             }
             *head = deleteStudentById(*head, id);
@@ -298,28 +298,28 @@ void processChoice(int choice, Student **head, char currentUser[])
         break;
     case 9:
         calculateCourseAverages(*head, averages);
-        printf("\nCourse averages:\n");
+        printf("\n¿Î³ÌÆ½¾ù·Ö£º\n");
         for (int i = 0; i < 5; i++)
         {
-            printf("Course %d: %.2f\n", i + 1, averages[i]);
+            printf("¿Î³Ì %d: %.2f\n", i + 1, averages[i]);
         }
         break;
     case 10:
     {
         int course_index;
-        printf("Please enter course number (1-5, or -1 to return to main menu): ");
+        printf("ÇëÊäÈë¿Î³Ì±àºÅ£¨1-5£¬ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%d", &course_index);
         if (course_index == -1)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             break;
         }
         if (course_index < 1 || course_index > 5)
         {
-            printf("Invalid course number!\n");
+            printf("ÎŞĞ§µÄ¿Î³Ì±àºÅ£¡\n");
             break;
         }
-        displayStudentsWithScoreAbove(*head, 0, course_index - 1); // 0æ— å®é™…æ„ä¹‰
+        displayStudentsWithScoreAbove(*head, 0, course_index - 1);
     }
     break;
     case 11:
@@ -332,11 +332,11 @@ void processChoice(int choice, Student **head, char currentUser[])
     case 13:
         if (saveStudentsToFile(*head, "students.txt"))
         {
-            printf("Data saved successfully!\n");
+            printf("Êı¾İ±£´æ³É¹¦£¡\n");
         }
         else
         {
-            printf("Data saving failed!\n");
+            printf("Êı¾İ±£´æÊ§°Ü£¡\n");
         }
         break;
     case 14:
@@ -355,7 +355,7 @@ void processChoice(int choice, Student **head, char currentUser[])
         exportGradesToCSV(*head);
         break;
     default:
-        printf("Invalid choice, please enter again!\n");
+        printf("ÎŞĞ§µÄÑ¡Ôñ£¬ÇëÖØĞÂÊäÈë£¡\n");
     }
 }
 
@@ -364,11 +364,11 @@ Student *createStudentList()
     return NULL;
 }
 
-// äºŒæ¬¡ç¡®è®¤
+// ¶ş´ÎÈ·ÈÏ
 int confirmReturn()
 {
     char confirm[10];
-    printf("Are you sure you want to cancel and return to main menu? (yes/no): ");
+    printf("È·¶¨ÒªÈ¡Ïû²¢·µ»ØÖ÷²Ëµ¥Âğ£¿(yes/no): ");
     scanf("%s", confirm);
     return strcmp(confirm, "yes") == 0;
 }
@@ -380,66 +380,66 @@ Student *addStudent(Student *head)
         Student *newStudent = (Student *)malloc(sizeof(Student));
         if (newStudent == NULL)
         {
-            printf("Memory allocation failed!\n");
+            printf("ÄÚ´æ·ÖÅäÊ§°Ü£¡\n");
             return head;
         }
 
-        printf("Please enter ID (or -1 to return to main menu): ");
+        printf("ÇëÊäÈëÑ§ºÅ£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%s", newStudent->id);
         if (strcmp(newStudent->id, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             free(newStudent);
             return head;
         }
 
         if (findStudentById(head, newStudent->id) != NULL)
         {
-            printf("This ID already exists, cannot add!\n");
+            printf("¸ÃÑ§ºÅÒÑ´æÔÚ£¬ÎŞ·¨Ìí¼Ó£¡\n");
             free(newStudent);
             continue;
         }
 
-        printf("Please enter name (or -1 to return to main menu): ");
+        printf("ÇëÊäÈëĞÕÃû£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%s", newStudent->name);
         if (strcmp(newStudent->name, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             free(newStudent);
             return head;
         }
 
         while (1)
         {
-            printf("Please enter gender (male/female, or -1 to return to main menu): ");
+            printf("ÇëÊäÈëĞÔ±ğ£¨ÄĞ/Å®£¬ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
             scanf("%s", newStudent->gender);
             if (strcmp(newStudent->gender, "-1") == 0)
             {
-                printf("Returning to main menu.\n");
+                printf("·µ»ØÖ÷²Ëµ¥¡£\n");
                 free(newStudent);
                 return head;
             }
-            if (strcmp(newStudent->gender, "male") == 0 || strcmp(newStudent->gender, "female") == 0)
+            if (strcmp(newStudent->gender, "ÄĞ") == 0 || strcmp(newStudent->gender, "Å®") == 0)
             {
                 break;
             }
             else
             {
-                printf("Invalid gender! Please enter 'male' or 'female'.\n");
+                printf("ÎŞĞ§µÄĞÔ±ğ£¡ÇëÊäÈë'ÄĞ'»ò'Å®'¡£\n");
             }
         }
 
-        printf("Please enter 5 course scores (0~100, or -1 to return to main menu):\n");
+        printf("ÇëÊäÈë5ÃÅ¿Î³Ì³É¼¨£¨0~100£¬ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©:\n");
         for (int i = 0; i < 5; i++)
         {
             float score;
             while (1)
             {
-                printf("Course %d: ", i + 1);
+                printf("¿Î³Ì %d: ", i + 1);
                 scanf("%f", &score);
                 if (score == -1)
                 {
-                    printf("Returning to main menu.\n");
+                    printf("·µ»ØÖ÷²Ëµ¥¡£\n");
                     free(newStudent);
                     return head;
                 }
@@ -450,7 +450,7 @@ Student *addStudent(Student *head)
                 }
                 else
                 {
-                    printf("Invalid score! Please enter a value between 0 and 100.\n");
+                    printf("ÎŞĞ§µÄ³É¼¨£¡ÇëÊäÈë0µ½100Ö®¼äµÄ·ÖÊı¡£\n");
                 }
             }
         }
@@ -460,7 +460,7 @@ Student *addStudent(Student *head)
         newStudent->next = head;
         head = newStudent;
 
-        printf("Student information added successfully!\n");
+        printf("Ñ§ÉúĞÅÏ¢Ìí¼Ó³É¹¦£¡\n");
         return head;
     }
 }
@@ -504,7 +504,7 @@ void rankStudentsByTotal(Student *head)
     Student **students = (Student **)malloc(sizeof(Student *) * count);
     if (students == NULL)
     {
-        printf("Memory allocation failed!\n");
+        printf("ÄÚ´æ·ÖÅäÊ§°Ü£¡\n");
         return;
     }
 
@@ -536,11 +536,11 @@ void rankStudentsByTotal(Student *head)
     free(students);
 }
 
-Student *findStudentById(Student *head, const char *id)
+Student *findStudentById(Student *head,   char *id)
 {
     if (strcmp(id, "-1") == 0)
     {
-        printf("Operation cancelled.\n");
+        printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
         return NULL;
     }
 
@@ -550,9 +550,9 @@ Student *findStudentById(Student *head, const char *id)
     {
         if (strcmp(current->id, id) == 0)
         {
-            printf("\nStudent information found:\n");
+            printf("\nÕÒµ½Ñ§ÉúĞÅÏ¢£º\n");
             printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
-                   "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+                   "Ñ§ºÅ", "ĞÕÃû", "ĞÔ±ğ", "¿Î³Ì1", "¿Î³Ì2", "¿Î³Ì3", "¿Î³Ì4", "¿Î³Ì5", "×Ü·Ö", "Æ½¾ù·Ö", "ÅÅÃû");
             printf("--------------------------------------------------------------------------------------------------------------\n");
             printf("%-10s %-15s %-5s %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-5d\n",
                    current->id, current->name, current->gender,
@@ -564,15 +564,15 @@ Student *findStudentById(Student *head, const char *id)
         current = current->next;
     }
 
-    printf("Student with ID %s not found!\n", id);
+    printf("Î´ÕÒµ½Ñ§ºÅÎª %s µÄÑ§Éú£¡\n", id);
     return NULL;
 }
 
-Student *findStudentByName(Student *head, const char *name)
+Student *findStudentByName(Student *head,   char *name)
 {
     if (strcmp(name, "-1") == 0)
     {
-        printf("Operation cancelled.\n");
+        printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
         return NULL;
     }
 
@@ -585,9 +585,9 @@ Student *findStudentByName(Student *head, const char *name)
         {
             if (!found)
             {
-                printf("\nStudent information found:\n");
+                printf("\nÕÒµ½Ñ§ÉúĞÅÏ¢£º\n");
                 printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
-                       "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+                       "Ñ§ºÅ", "ĞÕÃû", "ĞÔ±ğ", "¿Î³Ì1", "¿Î³Ì2", "¿Î³Ì3", "¿Î³Ì4", "¿Î³Ì5", "×Ü·Ö", "Æ½¾ù·Ö", "ÅÅÃû");
                 printf("--------------------------------------------------------------------------------------------------------------\n");
                 found = 1;
             }
@@ -601,7 +601,7 @@ Student *findStudentByName(Student *head, const char *name)
 
     if (!found)
     {
-        printf("Student with name %s not found!\n", name);
+        printf("Î´ÕÒµ½ĞÕÃûÎª %s µÄÑ§Éú£¡\n", name);
         return NULL;
     }
 
@@ -609,13 +609,13 @@ Student *findStudentByName(Student *head, const char *name)
     return head;
 }
 
-int saveStudentsToFile(Student *head, const char *filename)
+int saveStudentsToFile(Student *head,   char *filename)
 {
     (void)filename;
     FILE *file = fopen("students.txt", "w");
     if (file == NULL)
     {
-        printf("Cannot open file %s for writing!\n", "students.txt");
+        printf("ÎŞ·¨´ò¿ªÎÄ¼ş %s ½øĞĞĞ´Èë£¡\n", "students.txt");
         return 0;
     }
     Student *current = head;
@@ -633,13 +633,13 @@ int saveStudentsToFile(Student *head, const char *filename)
     return 1;
 }
 
-Student *loadStudentsFromFile(const char *filename)
+Student *loadStudentsFromFile(  char *filename)
 {
     (void)filename;
     FILE *file = fopen("students.txt", "r");
     if (file == NULL)
     {
-        printf("Cannot open file %s for reading!\n", "students.txt");
+        printf("ÎŞ·¨´ò¿ªÎÄ¼ş %s ½øĞĞ¶ÁÈ¡£¡\n", "students.txt");
         return NULL;
     }
     Student *head = NULL;
@@ -693,7 +693,7 @@ void saveUsers(User *users, int count)
     FILE *file = fopen("users.txt", "w");
     if (file == NULL)
     {
-        printf("Cannot open user file for writing!\n");
+        printf("ÎŞ·¨´ò¿ªÓÃ»§ÎÄ¼ş½øĞĞĞ´Èë£¡\n");
         return;
     }
     for (int i = 0; i < count; i++)
@@ -735,25 +735,25 @@ int loadUsers(User **users)
     return count;
 }
 
-Student *deleteStudentById(Student *head, const char *id)
+Student *deleteStudentById(Student *head,   char *id)
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("Ñ§ÉúÁĞ±íÎª¿Õ£¡\n");
         return NULL;
     }
 
-    printf("Are you sure you want to delete student with ID %s? (y/n, or -1 to return to previous menu): ", id);
+    printf("È·¶¨ÒªÉ¾³ıÑ§ºÅÎª %s µÄÑ§ÉúÂğ£¿(y/n£¬ÊäÈë-1·µ»ØÉÏÒ»¼¶²Ëµ¥): ", id);
     char confirm[10];
     scanf("%s", confirm);
     if (strcmp(confirm, "-1") == 0)
     {
-        printf("Returning to previous menu.\n");
+        printf("·µ»ØÉÏÒ»¼¶²Ëµ¥¡£\n");
         return head;
     }
     if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
     {
-        printf("Deletion cancelled.\n");
+        printf("É¾³ıÒÑÈ¡Ïû¡£\n");
         return head;
     }
 
@@ -762,7 +762,7 @@ Student *deleteStudentById(Student *head, const char *id)
         Student *temp = head;
         head = head->next;
         free(temp);
-        printf("Student with ID %s deleted!\n", id);
+        printf("ÒÑÉ¾³ıÑ§ºÅÎª %s µÄÑ§Éú£¡\n", id);
         return head;
     }
 
@@ -777,35 +777,35 @@ Student *deleteStudentById(Student *head, const char *id)
         Student *temp = current->next;
         current->next = temp->next;
         free(temp);
-        printf("Student with ID %s deleted!\n", id);
+        printf("ÒÑÉ¾³ıÑ§ºÅÎª %s µÄÑ§Éú£¡\n", id);
     }
     else
     {
-        printf("Student with ID %s not found!\n", id);
+        printf("Î´ÕÒµ½Ñ§ºÅÎª %s µÄÑ§Éú£¡\n", id);
     }
 
     return head;
 }
 
-Student *deleteStudentByName(Student *head, const char *name)
+Student *deleteStudentByName(Student *head,   char *name)
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("Ñ§ÉúÁĞ±íÎª¿Õ£¡\n");
         return NULL;
     }
 
-    printf("Are you sure you want to delete student(s) with name %s? (y/n, or -1 to return to previous menu): ", name);
+    printf("È·¶¨ÒªÉ¾³ıĞÕÃûÎª %s µÄÑ§ÉúÂğ£¿(y/n£¬ÊäÈë-1·µ»ØÉÏÒ»¼¶²Ëµ¥): ", name);
     char confirm[10];
     scanf("%s", confirm);
     if (strcmp(confirm, "-1") == 0)
     {
-        printf("Returning to previous menu.\n");
+        printf("·µ»ØÉÏÒ»¼¶²Ëµ¥¡£\n");
         return head;
     }
     if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
     {
-        printf("Deletion cancelled.\n");
+        printf("É¾³ıÒÑÈ¡Ïû¡£\n");
         return head;
     }
 
@@ -814,7 +814,7 @@ Student *deleteStudentByName(Student *head, const char *name)
         Student *temp = head;
         head = head->next;
         free(temp);
-        printf("Student with name %s deleted!\n", name);
+        printf("ÒÑÉ¾³ıĞÕÃûÎª %s µÄÑ§Éú£¡\n", name);
     }
 
     if (head == NULL)
@@ -842,21 +842,21 @@ Student *deleteStudentByName(Student *head, const char *name)
 
     if (deleted > 0)
     {
-        printf("Deleted %d students with name %s!\n", deleted, name);
+        printf("ÒÑÉ¾³ı %d ÃûĞÕÃûÎª %s µÄÑ§Éú£¡\n", deleted, name);
     }
     else
     {
-        printf("Student with name %s not found!\n", name);
+        printf("Î´ÕÒµ½ĞÕÃûÎª %s µÄÑ§Éú£¡\n", name);
     }
 
     return head;
 }
 
-Student *modifyStudentById(Student *head, const char *id)
+Student *modifyStudentById(Student *head,   char *id)
 {
     if (strcmp(id, "-1") == 0)
     {
-        printf("Operation cancelled.\n");
+        printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
         return head;
     }
 
@@ -868,70 +868,70 @@ Student *modifyStudentById(Student *head, const char *id)
 
     while (1)
     {
-        printf("\nPlease choose the information to modify:\n");
-        printf("1. Name\n");
-        printf("2. Gender\n");
-        printf("3. Scores\n");
-        printf("-1. Return to previous menu\n");
+        printf("\nÇëÑ¡ÔñÒªĞŞ¸ÄµÄĞÅÏ¢£º\n");
+        printf("1. ĞÕÃû\n");
+        printf("2. ĞÔ±ğ\n");
+        printf("3. ³É¼¨\n");
+        printf("-1. ·µ»ØÉÏÒ»¼¶²Ëµ¥\n");
 
         int choice;
-        printf("Please enter choice: ");
+        printf("ÇëÊäÈëÑ¡Ôñ: ");
         scanf("%d", &choice);
         if (choice == -1)
         {
-            printf("Returning to previous menu.\n");
+            printf("·µ»ØÉÏÒ»¼¶²Ëµ¥¡£\n");
             return head;
         }
 
         switch (choice)
         {
         case 1:
-            printf("Please enter new name (or -1 to cancel): ");
+            printf("ÇëÊäÈëĞÂĞÕÃû£¨ÊäÈë-1È¡Ïû£©: ");
             scanf("%s", student->name);
             if (strcmp(student->name, "-1") == 0)
             {
-                printf("Operation cancelled.\n");
+                printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
                 continue;
             }
-            printf("Name modified successfully!\n");
+            printf("ĞÕÃûĞŞ¸Ä³É¹¦£¡\n");
             break;
         case 2:
             while (1)
             {
-                printf("Please enter new gender (male/female, or -1 to cancel): ");
+                printf("ÇëÊäÈëĞÂĞÔ±ğ£¨ÄĞ/Å®£¬ÊäÈë-1È¡Ïû£©: ");
                 scanf("%s", student->gender);
                 if (strcmp(student->gender, "-1") == 0)
                 {
-                    printf("Operation cancelled.\n");
+                    printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
                     break;
                 }
-                if (strcmp(student->gender, "male") == 0 || strcmp(student->gender, "female") == 0)
+                if (strcmp(student->gender, "ÄĞ") == 0 || strcmp(student->gender, "Å®") == 0)
                 {
-                    printf("Gender modified successfully!\n");
+                    printf("ĞÔ±ğĞŞ¸Ä³É¹¦£¡\n");
                     break;
                 }
                 else
                 {
-                    printf("Invalid gender! Please enter 'male' or 'female'.\n");
+                    printf("ÎŞĞ§µÄĞÔ±ğ£¡ÇëÊäÈë'ÄĞ'»ò'Å®'¡£\n");
                 }
             }
             break;
         case 3:
-            printf("\nPlease select which course to modify:\n");
-            printf("1. Course 1\n");
-            printf("2. Course 2\n");
-            printf("3. Course 3\n");
-            printf("4. Course 4\n");
-            printf("5. Course 5\n");
-            printf("-1. Return to previous menu\n");
+            printf("\nÇëÑ¡ÔñÒªĞŞ¸ÄµÄ¿Î³Ì£º\n");
+            printf("1. ¿Î³Ì1\n");
+            printf("2. ¿Î³Ì2\n");
+            printf("3. ¿Î³Ì3\n");
+            printf("4. ¿Î³Ì4\n");
+            printf("5. ¿Î³Ì5\n");
+            printf("-1. ·µ»ØÉÏÒ»¼¶²Ëµ¥\n");
 
             int courseChoice;
-            printf("Please enter course number to modify (1-5, or -1 to cancel): ");
+            printf("ÇëÊäÈëÒªĞŞ¸ÄµÄ¿Î³Ì±àºÅ£¨1-5£¬ÊäÈë-1È¡Ïû£©: ");
             scanf("%d", &courseChoice);
 
             if (courseChoice == -1)
             {
-                printf("Returning to previous menu.\n");
+                printf("·µ»ØÉÏÒ»¼¶²Ëµ¥¡£\n");
                 continue;
             }
             else if (courseChoice >= 1 && courseChoice <= 5)
@@ -939,40 +939,40 @@ Student *modifyStudentById(Student *head, const char *id)
                 float score;
                 while (1)
                 {
-                    printf("Please enter new score for Course %d (0~100, or -1 to cancel): ", courseChoice);
+                    printf("ÇëÊäÈë¿Î³Ì %d µÄĞÂ³É¼¨£¨0~100£¬ÊäÈë-1È¡Ïû£©: ", courseChoice);
                     scanf("%f", &score);
                     if (score == -1)
                     {
-                        printf("Operation cancelled.\n");
+                        printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
                         break;
                     }
                     if (score >= 0 && score <= 100)
                     {
                         student->scores[courseChoice - 1] = score;
                         calculateTotalAndAverage(student);
-                        printf("Course %d score modified successfully!\n", courseChoice);
+                        printf("¿Î³Ì %d ³É¼¨ĞŞ¸Ä³É¹¦£¡\n", courseChoice);
                         break;
                     }
                     else
                     {
-                        printf("Invalid score! Please enter a value between 0 and 100.\n");
+                        printf("ÎŞĞ§µÄ³É¼¨£¡ÇëÊäÈë0µ½100Ö®¼äµÄ·ÖÊı¡£\n");
                     }
                 }
             }
             else
             {
-                printf("Invalid course selection!\n");
+                printf("ÎŞĞ§µÄ¿Î³ÌÑ¡Ôñ£¡\n");
             }
             break;
         default:
-            printf("Invalid choice!\n");
+            printf("ÎŞĞ§µÄÑ¡Ôñ£¡\n");
         }
     }
 
     return head;
 }
 
-Student *modifyStudentByName(Student *head, const char *name)
+Student *modifyStudentByName(Student *head,   char *name)
 {
     int count = 0;
     Student *current = head;
@@ -988,13 +988,13 @@ Student *modifyStudentByName(Student *head, const char *name)
 
     if (count == 0)
     {
-        printf("Student with name %s not found!\n", name);
+        printf("Î´ÕÒµ½ĞÕÃûÎª %s µÄÑ§Éú£¡\n", name);
         return head;
     }
 
     if (count > 1)
     {
-        printf("Found %d students with name %s, please use ID to modify!\n", count, name);
+        printf("ÕÒµ½ %d ÃûĞÕÃûÎª %s µÄÑ§Éú£¬ÇëÊ¹ÓÃÑ§ºÅ½øĞĞĞŞ¸Ä£¡\n", count, name);
         return head;
     }
 
@@ -1003,66 +1003,66 @@ Student *modifyStudentByName(Student *head, const char *name)
     {
         if (strcmp(current->name, name) == 0)
         {
-            printf("\nPlease choose the information to modify:\n");
-            printf("1. ID\n");
-            printf("2. Gender\n");
-            printf("3. Scores\n");
-            printf("-1. Cancel modification\n");
+            printf("\nÇëÑ¡ÔñÒªĞŞ¸ÄµÄĞÅÏ¢£º\n");
+            printf("1. Ñ§ºÅ\n");
+            printf("2. ĞÔ±ğ\n");
+            printf("3. ³É¼¨\n");
+            printf("-1. È¡ÏûĞŞ¸Ä\n");
 
             int choice;
-            printf("Please enter choice: ");
+            printf("ÇëÊäÈëÑ¡Ôñ: ");
             scanf("%d", &choice);
             if (choice == -1)
             {
-                printf("Operation cancelled.\n");
+                printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
                 return head;
             }
 
             switch (choice)
             {
             case 1:
-                printf("Please enter new ID (or -1 to cancel): ");
+                printf("ÇëÊäÈëĞÂÑ§ºÅ£¨ÊäÈë-1È¡Ïû£©: ");
                 scanf("%s", current->id);
                 if (strcmp(current->id, "-1") == 0)
                 {
-                    printf("Operation cancelled.\n");
+                    printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
                     return head;
                 }
-                printf("ID modified successfully!\n");
+                printf("Ñ§ºÅĞŞ¸Ä³É¹¦£¡\n");
                 break;
             case 2:
                 while (1)
                 {
-                    printf("Please enter new gender (male/female, or -1 to cancel): ");
+                    printf("ÇëÊäÈëĞÂĞÔ±ğ£¨ÄĞ/Å®£¬ÊäÈë-1È¡Ïû£©: ");
                     scanf("%s", current->gender);
                     if (strcmp(current->gender, "-1") == 0)
                     {
-                        printf("Operation cancelled.\n");
+                        printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
                         return head;
                     }
-                    if (strcmp(current->gender, "male") == 0 || strcmp(current->gender, "female") == 0)
+                    if (strcmp(current->gender, "ÄĞ") == 0 || strcmp(current->gender, "Å®") == 0)
                     {
-                        printf("Gender modified successfully!\n");
+                        printf("ĞÔ±ğĞŞ¸Ä³É¹¦£¡\n");
                         break;
                     }
                     else
                     {
-                        printf("Invalid gender! Please enter 'male' or 'female'.\n");
+                        printf("ÎŞĞ§µÄĞÔ±ğ£¡ÇëÊäÈë'ÄĞ'»ò'Å®'¡£\n");
                     }
                 }
                 break;
             case 3:
-                printf("Please enter new 5 course scores (0~100, or -1 to cancel):\n");
+                printf("ÇëÊäÈëĞÂµÄ5ÃÅ¿Î³Ì³É¼¨£¨0~100£¬ÊäÈë-1È¡Ïû£©:\n");
                 for (int i = 0; i < 5; i++)
                 {
                     float score;
                     while (1)
                     {
-                        printf("Course %d: ", i + 1);
+                        printf("¿Î³Ì %d: ", i + 1);
                         scanf("%f", &score);
                         if (score == -1)
                         {
-                            printf("Operation cancelled.\n");
+                            printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
                             return head;
                         }
                         if (score >= 0 && score <= 100)
@@ -1072,15 +1072,15 @@ Student *modifyStudentByName(Student *head, const char *name)
                         }
                         else
                         {
-                            printf("Invalid score! Please enter a value between 0 and 100.\n");
+                            printf("ÎŞĞ§µÄ³É¼¨£¡ÇëÊäÈë0µ½100Ö®¼äµÄ·ÖÊı¡£\n");
                         }
                     }
                 }
                 calculateTotalAndAverage(current);
-                printf("Scores modified successfully!\n");
+                printf("³É¼¨ĞŞ¸Ä³É¹¦£¡\n");
                 break;
             default:
-                printf("Invalid choice!\n");
+                printf("ÎŞĞ§µÄÑ¡Ôñ£¡\n");
             }
             break;
         }
@@ -1094,13 +1094,13 @@ void displayAllStudents(Student *head)
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("Ñ§ÉúÁĞ±íÎª¿Õ£¡\n");
         return;
     }
 
-    printf("\nAll student information:\n");
+    printf("\nËùÓĞÑ§ÉúĞÅÏ¢£º\n");
     printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
-           "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+           "Ñ§ºÅ", "ĞÕÃû", "ĞÔ±ğ", "¿Î³Ì1", "¿Î³Ì2", "¿Î³Ì3", "¿Î³Ì4", "¿Î³Ì5", "×Ü·Ö", "Æ½¾ù·Ö", "ÅÅÃû");
     printf("--------------------------------------------------------------------------------------------------------------\n");
 
     Student *current = head;
@@ -1133,7 +1133,7 @@ Student *sortStudentsById(Student *head)
     Student **students = (Student **)malloc(sizeof(Student *) * count);
     if (students == NULL)
     {
-        printf("Memory allocation failed!\n");
+        printf("ÄÚ´æ·ÖÅäÊ§°Ü£¡\n");
         return head;
     }
 
@@ -1188,7 +1188,7 @@ Student *sortStudentsByTotal(Student *head)
     Student **students = (Student **)malloc(sizeof(Student *) * count);
     if (students == NULL)
     {
-        printf("Memory allocation failed!\n");
+        printf("ÄÚ´æ·ÖÅäÊ§°Ü£¡\n");
         return head;
     }
 
@@ -1265,26 +1265,26 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("Ñ§ÉúÁĞ±íÎª¿Õ£¡\n");
         return;
     }
 
-    printf("\nPlease enter the minimum score (0-100, or -1 to cancel): ");
+    printf("\nÇëÊäÈë×îµÍ·ÖÊı£¨0-100£¬ÊäÈë-1È¡Ïû£©: ");
     float minScore;
     scanf("%f", &minScore);
     if (minScore == -1)
     {
-        printf("Operation cancelled.\n");
+        printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
         return;
     }
     if (minScore < 0 || minScore > 100)
     {
-        printf("Invalid score! Please enter a value between 0 and 100.\n");
+        printf("ÎŞĞ§µÄ·ÖÊı£¡ÇëÊäÈë0µ½100Ö®¼äµÄ·ÖÊı¡£\n");
         return;
     }
 
-    printf("\nStudents with course %d score above %.2f:\n", course_index + 1, minScore);
-    printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
+    printf("\n¿Î³Ì %d ·ÖÊı¸ßÓÚ %.2f µÄÑ§Éú£º\n", course_index + 1, minScore);
+    printf("%-10s %-15s %-5s %-8s\n", "Ñ§ºÅ", "ĞÕÃû", "ĞÔ±ğ", "·ÖÊı");
     printf("------------------------------------------\n");
 
     Student *current = head;
@@ -1303,12 +1303,12 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
 
     if (count == 0)
     {
-        printf("No student's course %d score above %.2f!\n", course_index + 1, minScore);
+        printf("Ã»ÓĞÑ§Éú¿Î³Ì %d µÄ·ÖÊı¸ßÓÚ %.2f£¡\n", course_index + 1, minScore);
     }
     else
     {
         printf("------------------------------------------\n");
-        printf("Total %d students' course %d score above %.2f.\n", count, course_index + 1, minScore);
+        printf("¹²ÓĞ %d ÃûÑ§Éú¿Î³Ì %d µÄ·ÖÊı¸ßÓÚ %.2f¡£\n", count, course_index + 1, minScore);
     }
 }
 
@@ -1316,26 +1316,26 @@ void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("Ñ§ÉúÁĞ±íÎª¿Õ£¡\n");
         return;
     }
 
-    printf("\nPlease enter the maximum score (0-100, or -1 to cancel): ");
+    printf("\nÇëÊäÈë×î¸ß·ÖÊı£¨0-100£¬ÊäÈë-1È¡Ïû£©: ");
     float maxScore;
     scanf("%f", &maxScore);
     if (maxScore == -1)
     {
-        printf("Operation cancelled.\n");
+        printf("²Ù×÷ÒÑÈ¡Ïû¡£\n");
         return;
     }
     if (maxScore < 0 || maxScore > 100)
     {
-        printf("Invalid score! Please enter a value between 0 and 100.\n");
+        printf("ÎŞĞ§µÄ·ÖÊı£¡ÇëÊäÈë0µ½100Ö®¼äµÄ·ÖÊı¡£\n");
         return;
     }
 
-    printf("\nStudents with course %d score below %.2f:\n", course_index + 1, maxScore);
-    printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
+    printf("\n¿Î³Ì %d ·ÖÊıµÍÓÚ %.2f µÄÑ§Éú£º\n", course_index + 1, maxScore);
+    printf("%-10s %-15s %-5s %-8s\n", "Ñ§ºÅ", "ĞÕÃû", "ĞÔ±ğ", "·ÖÊı");
     printf("------------------------------------------\n");
 
     Student *current = head;
@@ -1354,12 +1354,12 @@ void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
 
     if (count == 0)
     {
-        printf("No student's course %d score below %.2f!\n", course_index + 1, maxScore);
+        printf("Ã»ÓĞÑ§Éú¿Î³Ì %d µÄ·ÖÊıµÍÓÚ %.2f£¡\n", course_index + 1, maxScore);
     }
     else
     {
         printf("------------------------------------------\n");
-        printf("Total %d students' course %d score below %.2f.\n", count, course_index + 1, maxScore);
+        printf("¹²ÓĞ %d ÃûÑ§Éú¿Î³Ì %d µÄ·ÖÊıµÍÓÚ %.2f¡£\n", count, course_index + 1, maxScore);
     }
 }
 
@@ -1367,16 +1367,16 @@ void displayStudentsBelowAverage(Student *head, float averages[5])
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("Ñ§ÉúÁĞ±íÎª¿Õ£¡\n");
         return;
     }
 
-    printf("\nStudents below average:\n");
+    printf("\nµÍÓÚÆ½¾ù·ÖµÄÑ§Éú£º\n");
 
     for (int i = 0; i < 5; i++)
     {
-        printf("\nCourse %d (Average: %.2f):\n", i + 1, averages[i]);
-        printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
+        printf("\n¿Î³Ì %d£¨Æ½¾ù·Ö£º%.2f£©£º\n", i + 1, averages[i]);
+        printf("%-10s %-15s %-5s %-8s\n", "Ñ§ºÅ", "ĞÕÃû", "ĞÔ±ğ", "·ÖÊı");
         printf("------------------------------------------\n");
 
         Student *current = head;
@@ -1395,12 +1395,12 @@ void displayStudentsBelowAverage(Student *head, float averages[5])
 
         if (count == 0)
         {
-            printf("No student's score below average!\n");
+            printf("Ã»ÓĞÑ§ÉúµÍÓÚÆ½¾ù·Ö£¡\n");
         }
         else
         {
             printf("------------------------------------------\n");
-            printf("Total %d students' course %d score below average.\n", count, i + 1);
+            printf("¹²ÓĞ %d ÃûÑ§Éú¿Î³Ì %d µÄ·ÖÊıµÍÓÚÆ½¾ù·Ö¡£\n", count, i + 1);
         }
     }
 }
@@ -1409,13 +1409,13 @@ void displayFailingStudents(Student *head)
 {
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("Ñ§ÉúÁĞ±íÎª¿Õ£¡\n");
         return;
     }
 
-    printf("\nFailing students (below 60 points):\n");
+    printf("\n²»¼°¸ñÑ§Éú£¨µÍÓÚ60·Ö£©£º\n");
     printf("%-10s %-15s %-5s %-10s %-10s %-10s %-10s %-10s\n",
-           "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5");
+           "Ñ§ºÅ", "ĞÕÃû", "ĞÔ±ğ", "¿Î³Ì1", "¿Î³Ì2", "¿Î³Ì3", "¿Î³Ì4", "¿Î³Ì5");
     printf("--------------------------------------------------------------------------------\n");
 
     Student *current = head;
@@ -1458,38 +1458,38 @@ void displayFailingStudents(Student *head)
 
     if (totalFailingStudents == 0)
     {
-        printf("No failing students found!\n");
+        printf("Ã»ÓĞÕÒµ½²»¼°¸ñµÄÑ§Éú£¡\n");
     }
     else
     {
         printf("--------------------------------------------------------------------------------\n");
-        printf("Total %d students have failing courses. (* indicates failing score)\n", totalFailingStudents);
+        printf("¹²ÓĞ %d ÃûÑ§ÉúÓĞ²»¼°¸ñ¿Î³Ì¡££¨* ±íÊ¾²»¼°¸ñ³É¼¨£©\n", totalFailingStudents);
     }
 }
 
 void exportGradesToCSV(Student *head)
 {
-    printf("Are you sure you want to export grades to CSV? (y/n, or -1 to return to main menu): ");
+    printf("È·¶¨Òªµ¼³ö³É¼¨µ½CSVÎÄ¼şÂğ£¿(y/n£¬ÊäÈë-1·µ»ØÖ÷²Ëµ¥): ");
     char confirm[10];
     scanf("%s", confirm);
     if (strcmp(confirm, "-1") == 0)
     {
-        printf("Returning to main menu.\n");
+        printf("·µ»ØÖ÷²Ëµ¥¡£\n");
         return;
     }
     if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
     {
-        printf("Export cancelled.\n");
+        printf("µ¼³öÒÑÈ¡Ïû¡£\n");
         return;
     }
 
     FILE *file = fopen("students.csv", "w");
     if (file == NULL)
     {
-        printf("Cannot open students.csv for writing!\n");
+        printf("ÎŞ·¨´ò¿ªstudents.csvÎÄ¼ş½øĞĞĞ´Èë£¡\n");
         return;
     }
-    fprintf(file, "ID,Name,Gender,Course1,Course2,Course3,Course4,Course5,Total,Average,Rank\n");
+    fprintf(file, "Ñ§ºÅ,ĞÕÃû,ĞÔ±ğ,¿Î³Ì1,¿Î³Ì2,¿Î³Ì3,¿Î³Ì4,¿Î³Ì5,×Ü·Ö,Æ½¾ù·Ö,ÅÅÃû\n");
     Student *current = head;
     while (current != NULL)
     {
@@ -1500,7 +1500,7 @@ void exportGradesToCSV(Student *head)
         current = current->next;
     }
     fclose(file);
-    printf("Exported to students.csv successfully!\n");
+    printf("³É¹¦µ¼³öµ½students.csvÎÄ¼ş£¡\n");
 }
 
 void registerUser()
@@ -1512,11 +1512,11 @@ void registerUser()
         User *users = NULL;
         int count = loadUsers(&users);
 
-        printf("Please enter new username (or -1 to return to main menu): ");
+        printf("ÇëÊäÈëĞÂÓÃ»§Ãû£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%s", username);
         if (strcmp(username, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             free(users);
             return;
         }
@@ -1525,17 +1525,17 @@ void registerUser()
         {
             if (strcmp(users[i].username, username) == 0)
             {
-                printf("Username already exists!\n");
+                printf("ÓÃ»§ÃûÒÑ´æÔÚ£¡\n");
                 free(users);
                 continue;
             }
         }
 
-        printf("Please enter new password (or -1 to return to main menu): ");
+        printf("ÇëÊäÈëĞÂÃÜÂë£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%s", password);
         if (strcmp(password, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             free(users);
             return;
         }
@@ -1544,7 +1544,7 @@ void registerUser()
         strcpy(users[count].username, username);
         strcpy(users[count].password, password);
         saveUsers(users, count + 1);
-        printf("User registered successfully!\n");
+        printf("ÓÃ»§×¢²á³É¹¦£¡\n");
         free(users);
         return;
     }
@@ -1559,32 +1559,32 @@ void deleteUser()
         int count = loadUsers(&users);
         if (count <= 1)
         {
-            printf("At least one user must remain!\n");
+            printf("±ØĞë±£ÁôÖÁÉÙÒ»¸öÓÃ»§£¡\n");
             free(users);
             return;
         }
 
-        printf("Please enter username to delete (or -1 to return to main menu): ");
+        printf("ÇëÊäÈëÒªÉ¾³ıµÄÓÃ»§Ãû£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%s", username);
         if (strcmp(username, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             free(users);
             return;
         }
 
-        printf("Are you sure you want to delete user %s? (y/n, or -1 to return to previous menu): ", username);
+        printf("È·¶¨ÒªÉ¾³ıÓÃ»§ %s Âğ£¿(y/n£¬ÊäÈë-1·µ»ØÉÏÒ»¼¶²Ëµ¥): ", username);
         char confirm[10];
         scanf("%s", confirm);
         if (strcmp(confirm, "-1") == 0)
         {
-            printf("Returning to previous menu.\n");
+            printf("·µ»ØÉÏÒ»¼¶²Ëµ¥¡£\n");
             free(users);
             return;
         }
         if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
         {
-            printf("Deletion cancelled.\n");
+            printf("É¾³ıÒÑÈ¡Ïû¡£\n");
             free(users);
             return;
         }
@@ -1604,12 +1604,12 @@ void deleteUser()
         }
         if (!found)
         {
-            printf("Username not found!\n");
+            printf("Î´ÕÒµ½¸ÃÓÃ»§Ãû£¡\n");
             free(users);
             continue;
         }
         saveUsers(users, count - 1);
-        printf("User deleted successfully!\n");
+        printf("ÓÃ»§É¾³ı³É¹¦£¡\n");
         free(users);
         return;
     }
@@ -1626,20 +1626,20 @@ void changePassword()
         int count = loadUsers(&users);
         int found = 0;
 
-        printf("Please enter your username (or -1 to return to main menu): ");
+        printf("ÇëÊäÈëÄúµÄÓÃ»§Ãû£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%s", username);
         if (strcmp(username, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             free(users);
             return;
         }
 
-        printf("Please enter your old password (or -1 to return to main menu): ");
+        printf("ÇëÊäÈëÄúµÄ¾ÉÃÜÂë£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
         scanf("%s", oldPassword);
         if (strcmp(oldPassword, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("·µ»ØÖ÷²Ëµ¥¡£\n");
             free(users);
             return;
         }
@@ -1648,24 +1648,24 @@ void changePassword()
         {
             if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, oldPassword) == 0)
             {
-                printf("Please enter your new password (or -1 to return to main menu): ");
+                printf("ÇëÊäÈëÄúµÄĞÂÃÜÂë£¨ÊäÈë-1·µ»ØÖ÷²Ëµ¥£©: ");
                 scanf("%s", newPassword);
                 if (strcmp(newPassword, "-1") == 0)
                 {
-                    printf("Returning to main menu.\n");
+                    printf("·µ»ØÖ÷²Ëµ¥¡£\n");
                     free(users);
                     return;
                 }
                 strcpy(users[i].password, newPassword);
                 saveUsers(users, count);
-                printf("Password changed successfully!\n");
+                printf("ÃÜÂëĞŞ¸Ä³É¹¦£¡\n");
                 found = 1;
                 break;
             }
         }
         if (!found)
         {
-            printf("Username or old password incorrect!\n");
+            printf("ÓÃ»§Ãû»ò¾ÉÃÜÂë´íÎó£¡\n");
             free(users);
             continue;
         }
@@ -1678,8 +1678,8 @@ void viewCurrentUser(char currentUser[])
 {
     if (strcmp(currentUser, "") == 0)
     {
-        printf("No user is currently logged in.\n");
+        printf("µ±Ç°Ã»ÓĞÓÃ»§µÇÂ¼¡£\n");
         return;
     }
-    printf("Current logged in user: %s\n", currentUser);
+    printf("µ±Ç°µÇÂ¼ÓÃ»§£º%s\n", currentUser);
 }

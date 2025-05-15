@@ -2,6 +2,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * 本程序中使用二级指针的主要场景和原因：
+ *
+ * 1. 链表头指针的修改
+ *    - 在processChoice函数中使用 Student **head
+ *    - 原因：某些操作（如添加、删除、修改学生信息）可能会改变链表的头节点
+ *    - 通过二级指针，可以在函数内部修改链表头指针的指向
+ *    - 例如：*head = addStudent(*head) 可以更新链表头指针
+ *
+ * 2. 动态内存分配
+ *    - 在loadUsers函数中使用 User **users
+ *    - 原因：需要在函数内部动态分配内存并返回给调用者
+ *    - 通过二级指针，可以在函数内部修改指针指向的内存地址
+ *    - 如果使用一级指针，函数内部对指针的修改不会影响外部
+ *
+ * 3. 为什么需要二级指针：
+ *    - 在C语言中，函数参数是按值传递的
+ *    - 如果使用一级指针，函数内部对指针的修改不会影响外部
+ *    - 使用二级指针可以修改指针本身的值，而不仅仅是修改指针指向的内容
+ *    - 这对于需要修改链表头节点或动态分配内存的场景非常重要
+ */
+
 // 用户登录相关的结构体定义
 typedef struct
 {
@@ -27,12 +49,22 @@ typedef struct Student
 int login(char currentUser[]);                              // 用户登录函数，返回登录状态，保存当前用户名
 int verifyUser(const char *username, const char *password); // 验证用户名和密码
 void saveUsers(User *users, int count);                     // 保存用户信息到文件
-int loadUsers(User **users);                                // 从文件加载用户信息
-void exportGradesToCSV(Student *head);                      // 导出成绩到CSV文件
-void registerUser();                                        // 注册新用户
-void deleteUser();                                          // 删除用户
-void changePassword();                                      // 修改密码
-void viewCurrentUser(char currentUser[]);                   // 查看当前登录用户
+/**
+ * 从文件加载用户信息
+ * @param users 二级指针，用于在函数内部动态分配内存并存储用户数据
+ * @return 返回加载的用户数量，如果加载失败返回0
+ *
+ * 使用二级指针的原因：
+ * 1. 需要在函数内部动态分配内存
+ * 2. 需要修改指针指向的内存地址
+ * 3. 如果使用一级指针，函数内部对指针的修改不会影响外部
+ */
+int loadUsers(User **users);
+void exportGradesToCSV(Student *head);    // 导出成绩到CSV文件
+void registerUser();                      // 注册新用户
+void deleteUser();                        // 删除用户
+void changePassword();                    // 修改密码
+void viewCurrentUser(char currentUser[]); // 查看当前登录用户
 
 // 2. 学生信息管理
 Student *createStudentList();                                  // 创建学生链表
@@ -63,8 +95,19 @@ int saveStudentsToFile(Student *head, const char *filename); // 将学生信息�
 Student *loadStudentsFromFile(const char *filename);         // 从文件加载学生信息
 
 // 5. 菜单和主程序函数
-void displayMenu();                                                 // 显示主菜单
-void processChoice(int choice, Student **head, char currentUser[]); // 处理用户选择
+void displayMenu(); // 显示主菜单
+/**
+ * 处理用户选择的操作
+ * @param choice 用户选择的菜单选项
+ * @param head 二级指针，指向学生链表的头节点
+ * @param currentUser 当前登录用户的用户名
+ *
+ * 使用二级指针的原因：
+ * 1. 某些操作（如添加、删除、修改学生信息）可能会改变链表的头节点
+ * 2. 需要修改链表头指针的值
+ * 3. 通过二级指针，可以在函数内部修改链表头指针的指向
+ */
+void processChoice(int choice, Student **head, char currentUser[]);
 
 int main()
 {
@@ -179,10 +222,10 @@ int verifyUser(const char *username, const char *password)
         if (strcmp(username, "admin") == 0 && strcmp(password, "admin") == 0)
         {
             // 创建默认用户并保存
-            User defaultUser;
-            strcpy(defaultUser.username, "admin");
-            strcpy(defaultUser.password, "admin");
-            saveUsers(&defaultUser, 1);
+            User InitialUser;
+            strcpy(InitialUser.username, "admin");
+            strcpy(InitialUser.password, "admin");
+            saveUsers(&InitialUser, 1);
             return 1;
         }
         return 0;
@@ -220,23 +263,31 @@ void saveUsers(User *users, int count)
     fclose(file);
 }
 
-// 从文件加载用户信息
+/**
+ * 从文件加载用户信息
+ * @param users 二级指针，用于在函数内部动态分配内存并存储用户数据
+ * @return 返回加载的用户数量，如果加载失败返回0
+ *
+ * 使用二级指针的原因：
+ * 1. 需要在函数内部动态分配内存
+ * 2. 需要修改指针指向的内存地址
+ * 3. 如果使用一级指针，函数内部对指针的修改不会影响外部
+ */
 int loadUsers(User **users)
 {
-    FILE *file = fopen("users.txt", "r"); // 以读取模式打开用户文件
+    FILE *file = fopen("users.txt", "r");
     if (file == NULL)
     {
-        return 0; // 文件不存在，返回0
+        return 0;
     }
-    int capacity = 10;                                // 初始容量
-    int count = 0;                                    // 用户数量
-    *users = (User *)malloc(sizeof(User) * capacity); // 分配初始内存
+    int capacity = 10;
+    int count = 0;
+    *users = (User *)malloc(sizeof(User) * capacity); // 通过二级指针分配内存
     if (*users == NULL)
     {
         fclose(file);
         return 0;
     }
-
     // 读取文件中的用户信息
     while (!feof(file))
     {
@@ -280,6 +331,17 @@ void displayMenu()
     printf("0. Exit system\n");
 }
 
+/**
+ * 处理用户选择的操作
+ * @param choice 用户选择的菜单选项
+ * @param head 二级指针，指向学生链表的头节点
+ * @param currentUser 当前登录用户的用户名
+ *
+ * 使用二级指针的原因：
+ * 1. 某些操作（如添加、删除、修改学生信息）可能会改变链表的头节点
+ * 2. 需要修改链表头指针的值
+ * 3. 通过二级指针，可以在函数内部修改链表头指针的指向
+ */
 void processChoice(int choice, Student **head, char currentUser[])
 {
     char id[20];
@@ -292,7 +354,7 @@ void processChoice(int choice, Student **head, char currentUser[])
         printf("Saving data and exiting...\n");
         break;
     case 1:
-        *head = addStudent(*head);
+        *head = addStudent(*head); // 修改链表头指针
         calculateAllTotalAndAverage(*head);
         rankStudentsByTotal(*head);
         break;
@@ -323,19 +385,9 @@ void processChoice(int choice, Student **head, char currentUser[])
         }
         break;
     case 4:
-        while (1)
-        {
-            printf("Please enter the ID of the student to modify (or -1 to return to main menu): ");
-            scanf("%s", id);
-            if (strcmp(id, "-1") == 0)
-            {
-                printf("Returning to main menu.\n");
-                break;
-            }
-            *head = modifyStudentById(*head, id);
-            calculateAllTotalAndAverage(*head);
-            rankStudentsByTotal(*head);
-        }
+        *head = modifyStudentById(*head, id); // 修改链表头指针
+        calculateAllTotalAndAverage(*head);
+        rankStudentsByTotal(*head);
         break;
     case 5:
         while (1)
@@ -432,16 +484,7 @@ Student *createStudentList()
     return NULL; // 返回空链表
 }
 
-// 二次确认函数
-int confirmReturn()
-{
-    char confirm[10];
-    printf("Are you sure you want to cancel and return to main menu? (yes/no): ");
-    scanf("%s", confirm);
-    return strcmp(confirm, "yes") == 0;
-}
-
-// 添加学生信息
+// 添加学生信息（使用头插法）
 Student *addStudent(Student *head)
 {
     while (1)
@@ -450,16 +493,16 @@ Student *addStudent(Student *head)
         Student *newStudent = (Student *)malloc(sizeof(Student));
         if (newStudent == NULL)
         {
-            printf("Memory allocation failed!\n");
+            printf("内存分配失败！\n");
             return head;
         }
 
         // 输入学号
-        printf("Please enter ID (or -1 to return to main menu): ");
+        printf("请输入学号（或-1返回主菜单）: ");
         scanf("%s", newStudent->id);
         if (strcmp(newStudent->id, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("返回主菜单。\n");
             free(newStudent);
             return head;
         }
@@ -467,54 +510,54 @@ Student *addStudent(Student *head)
         // 检查学号是否已存在
         if (findStudentById(head, newStudent->id) != NULL)
         {
-            printf("This ID already exists, cannot add!\n");
+            printf("该学号已存在，无法添加！\n");
             free(newStudent);
             continue;
         }
 
         // 输入姓名
-        printf("Please enter name (or -1 to return to main menu): ");
+        printf("请输入姓名（或-1返回主菜单）: ");
         scanf("%s", newStudent->name);
         if (strcmp(newStudent->name, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("返回主菜单。\n");
             free(newStudent);
             return head;
         }
 
-        // 输入性别（只允许male或female）
+        // 输入性别（只允许男或女）
         while (1)
         {
-            printf("Please enter gender (male/female, or -1 to return to main menu): ");
+            printf("请输入性别（男/女，或-1返回主菜单）: ");
             scanf("%s", newStudent->gender);
             if (strcmp(newStudent->gender, "-1") == 0)
             {
-                printf("Returning to main menu.\n");
+                printf("返回主菜单。\n");
                 free(newStudent);
                 return head;
             }
-            if (strcmp(newStudent->gender, "male") == 0 || strcmp(newStudent->gender, "female") == 0)
+            if (strcmp(newStudent->gender, "男") == 0 || strcmp(newStudent->gender, "女") == 0)
             {
                 break;
             }
             else
             {
-                printf("Invalid gender! Please enter 'male' or 'female'.\n");
+                printf("无效的性别！请输入'男'或'女'。\n");
             }
         }
 
         // 输入5门课程的成绩
-        printf("Please enter 5 course scores (0~100, or -1 to return to main menu):\n");
+        printf("请输入5门课程成绩（0~100，或-1返回主菜单）:\n");
         for (int i = 0; i < 5; i++)
         {
             float score;
             while (1)
             {
-                printf("Course %d: ", i + 1);
+                printf("课程 %d: ", i + 1);
                 scanf("%f", &score);
                 if (score == -1)
                 {
-                    printf("Returning to main menu.\n");
+                    printf("返回主菜单。\n");
                     free(newStudent);
                     return head;
                 }
@@ -525,7 +568,7 @@ Student *addStudent(Student *head)
                 }
                 else
                 {
-                    printf("Invalid score! Please enter a value between 0 and 100.\n");
+                    printf("无效的成绩！请输入0到100之间的分数。\n");
                 }
             }
         }
@@ -533,13 +576,72 @@ Student *addStudent(Student *head)
         // 计算总分和平均分
         calculateTotalAndAverage(newStudent);
 
-        // 将新节点插入链表头部
+        // 头插法：将新节点插入链表头部
+        // 1. 新节点的next指向当前头节点
         newStudent->next = head;
+        // 2. 更新头节点为新节点
         head = newStudent;
 
-        printf("Student information added successfully!\n");
+        printf("学生信息添加成功！\n");
         return head;
     }
+}
+
+// 从文件加载学生数据（使用尾插法）
+Student *loadStudentsFromFile(const char *filename)
+{
+    (void)filename;                          // 消除未使用参数警告
+    FILE *file = fopen("students.txt", "r"); // 以读取模式打开文件
+    if (file == NULL)
+    {
+        printf("无法打开文件 %s 进行读取！\n", "students.txt");
+        return NULL;
+    }
+
+    Student *head = NULL; // 链表头指针
+    Student *tail = NULL; // 链表尾指针
+
+    // 循环读取文件中的学生信息
+    while (1)
+    {
+        Student temp;
+        // 读取基本信息
+        int ret = fscanf(file, "%s %s %s ", temp.id, temp.name, temp.gender);
+        if (ret != 3)
+            break;
+
+        // 读取5门课程成绩
+        for (int i = 0; i < 5; i++)
+        {
+            if (fscanf(file, "%f ", &temp.scores[i]) != 1)
+                break;
+        }
+
+        // 读取总分、平均分和排名
+        if (fscanf(file, "%f %f %d\n", &temp.total, &temp.average, &temp.rank) != 3)
+            break;
+
+        // 创建新节点
+        Student *newStudent = (Student *)malloc(sizeof(Student));
+        *newStudent = temp;
+        newStudent->next = NULL;
+
+        // 尾插法：将新节点添加到链表末尾
+        if (head == NULL)
+        {
+            // 如果链表为空，新节点既是头节点也是尾节点
+            head = newStudent;
+            tail = newStudent;
+        }
+        else
+        {
+            // 如果链表不为空，将新节点添加到尾节点后面
+            tail->next = newStudent;
+            tail = newStudent;
+        }
+    }
+    fclose(file);
+    return head;
 }
 
 // 计算单个学生的总分和平均分
@@ -1139,17 +1241,17 @@ void displayFailingStudents(Student *head)
 void exportGradesToCSV(Student *head)
 {
     // 确认是否导出
-    printf("Are you sure you want to export grades to CSV? (y/n, or -1 to return to main menu): ");
+    printf("确定要导出成绩到CSV文件吗？(y/n，输入-1返回主菜单): ");
     char confirm[10];
     scanf("%s", confirm);
     if (strcmp(confirm, "-1") == 0)
     {
-        printf("Returning to main menu.\n");
+        printf("返回主菜单。\n");
         return;
     }
     if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
     {
-        printf("Export cancelled.\n");
+        printf("导出已取消。\n");
         return;
     }
 
@@ -1157,12 +1259,12 @@ void exportGradesToCSV(Student *head)
     FILE *file = fopen("students.csv", "w");
     if (file == NULL)
     {
-        printf("Cannot open students.csv for writing!\n");
+        printf("无法打开students.csv文件进行写入！\n");
         return;
     }
 
     // 写入CSV文件头
-    fprintf(file, "ID,Name,Gender,Course1,Course2,Course3,Course4,Course5,Total,Average,Rank\n");
+    fprintf(file, "学号,姓名,性别,课程1,课程2,课程3,课程4,课程5,总分,平均分,排名\n");
 
     // 写入每个学生的信息
     Student *current = head;
@@ -1176,7 +1278,7 @@ void exportGradesToCSV(Student *head)
         current = current->next;
     }
     fclose(file);
-    printf("Exported to students.csv successfully!\n");
+    printf("成功导出到students.csv文件！\n");
 }
 
 void registerUser()
@@ -1843,4 +1945,13 @@ Student *modifyStudentByName(Student *head, const char *name)
     }
 
     return head;
+}
+
+// 二次确认函数
+int confirmReturn()
+{
+    char confirm[10];
+    printf("确定要取消并返回主菜单吗？(yes/no): ");
+    scanf("%s", confirm);
+    return strcmp(confirm, "yes") == 0;
 }
