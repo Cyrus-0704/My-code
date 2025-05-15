@@ -484,12 +484,11 @@ Student *createStudentList()
     return NULL; // 返回空链表
 }
 
-// 添加学生信息（使用头插法）
+// 添加学生信息（使用尾插法）
 Student *addStudent(Student *head)
 {
     while (1)
     {
-        // 分配新学生节点的内存
         Student *newStudent = (Student *)malloc(sizeof(Student));
         if (newStudent == NULL)
         {
@@ -497,8 +496,7 @@ Student *addStudent(Student *head)
             return head;
         }
 
-        // 输入学号
-        printf("请输入学号（或-1返回主菜单）: ");
+        printf("请输入学号（输入-1返回主菜单）: ");
         scanf("%s", newStudent->id);
         if (strcmp(newStudent->id, "-1") == 0)
         {
@@ -507,7 +505,6 @@ Student *addStudent(Student *head)
             return head;
         }
 
-        // 检查学号是否已存在
         if (findStudentById(head, newStudent->id) != NULL)
         {
             printf("该学号已存在，无法添加！\n");
@@ -515,8 +512,7 @@ Student *addStudent(Student *head)
             continue;
         }
 
-        // 输入姓名
-        printf("请输入姓名（或-1返回主菜单）: ");
+        printf("请输入姓名（输入-1返回主菜单）: ");
         scanf("%s", newStudent->name);
         if (strcmp(newStudent->name, "-1") == 0)
         {
@@ -525,10 +521,9 @@ Student *addStudent(Student *head)
             return head;
         }
 
-        // 输入性别（只允许男或女）
         while (1)
         {
-            printf("请输入性别（男/女，或-1返回主菜单）: ");
+            printf("请输入性别（男/女，输入-1返回主菜单）: ");
             scanf("%s", newStudent->gender);
             if (strcmp(newStudent->gender, "-1") == 0)
             {
@@ -546,8 +541,7 @@ Student *addStudent(Student *head)
             }
         }
 
-        // 输入5门课程的成绩
-        printf("请输入5门课程成绩（0~100，或-1返回主菜单）:\n");
+        printf("请输入5门课程成绩（0~100，输入-1返回主菜单）:\n");
         for (int i = 0; i < 5; i++)
         {
             float score;
@@ -573,14 +567,26 @@ Student *addStudent(Student *head)
             }
         }
 
-        // 计算总分和平均分
         calculateTotalAndAverage(newStudent);
+        newStudent->next = NULL; // 新节点的next指针初始化为NULL
 
-        // 头插法：将新节点插入链表头部
-        // 1. 新节点的next指向当前头节点
-        newStudent->next = head;
-        // 2. 更新头节点为新节点
-        head = newStudent;
+        // 使用尾插法添加新节点
+        if (head == NULL)
+        {
+            // 如果链表为空，新节点作为头节点
+            head = newStudent;
+        }
+        else
+        {
+            // 找到链表的最后一个节点
+            Student *current = head;
+            while (current->next != NULL)
+            {
+                current = current->next;
+            }
+            // 将新节点连接到最后一个节点后面
+            current->next = newStudent;
+        }
 
         printf("学生信息添加成功！\n");
         return head;
@@ -728,24 +734,21 @@ void rankStudentsByTotal(Student *head)
 // 根据学号查找学生
 Student *findStudentById(Student *head, const char *id)
 {
-    // 检查是否为取消操作
     if (strcmp(id, "-1") == 0)
     {
-        printf("Operation cancelled.\n");
+        printf("操作已取消。\n");
         return NULL;
     }
 
     Student *current = head;
 
-    // 遍历链表查找学生
     while (current != NULL)
     {
         if (strcmp(current->id, id) == 0)
         {
-            // 找到学生，显示信息
-            printf("\nStudent information found:\n");
+            printf("\n找到学生信息：\n");
             printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
-                   "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+                   "学号", "姓名", "性别", "课程1", "课程2", "课程3", "课程4", "课程5", "总分", "平均分", "排名");
             printf("--------------------------------------------------------------------------------------------------------------\n");
             printf("%-10s %-15s %-5s %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-5d\n",
                    current->id, current->name, current->gender,
@@ -757,38 +760,34 @@ Student *findStudentById(Student *head, const char *id)
         current = current->next;
     }
 
-    printf("Student with ID %s not found!\n", id);
+    printf("未找到学号为 %s 的学生！\n", id);
     return NULL;
 }
 
 // 根据姓名查找学生
 Student *findStudentByName(Student *head, const char *name)
 {
-    // 检查是否为取消操作
     if (strcmp(name, "-1") == 0)
     {
-        printf("Operation cancelled.\n");
+        printf("操作已取消。\n");
         return NULL;
     }
 
     Student *current = head;
-    int found = 0; // 是否找到学生的标志
+    int found = 0;
 
-    // 遍历链表查找学生
     while (current != NULL)
     {
         if (strcmp(current->name, name) == 0)
         {
-            // 如果是第一个找到的学生，打印表头
             if (!found)
             {
-                printf("\nStudent information found:\n");
+                printf("\n找到学生信息：\n");
                 printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
-                       "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+                       "学号", "姓名", "性别", "课程1", "课程2", "课程3", "课程4", "课程5", "总分", "平均分", "排名");
                 printf("--------------------------------------------------------------------------------------------------------------\n");
                 found = 1;
             }
-            // 显示学生信息
             printf("%-10s %-15s %-5s %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-8.2f %-5d\n",
                    current->id, current->name, current->gender,
                    current->scores[0], current->scores[1], current->scores[2], current->scores[3], current->scores[4],
@@ -799,7 +798,7 @@ Student *findStudentByName(Student *head, const char *name)
 
     if (!found)
     {
-        printf("Student with name %s not found!\n", name);
+        printf("未找到姓名为 %s 的学生！\n", name);
         return NULL;
     }
 
@@ -810,20 +809,17 @@ Student *findStudentByName(Student *head, const char *name)
 // 显示所有学生信息
 void displayAllStudents(Student *head)
 {
-    // 检查链表是否为空
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("学生列表为空！\n");
         return;
     }
 
-    // 打印表头
-    printf("\nAll student information:\n");
+    printf("\n所有学生信息：\n");
     printf("%-10s %-15s %-5s %-8s %-8s %-8s %-8s %-8s %-8s %-8s %-5s\n",
-           "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5", "Total", "Average", "Rank");
+           "学号", "姓名", "性别", "课程1", "课程2", "课程3", "课程4", "课程5", "总分", "平均分", "排名");
     printf("--------------------------------------------------------------------------------------------------------------\n");
 
-    // 遍历链表显示所有学生信息
     Student *current = head;
     while (current != NULL)
     {
@@ -1010,36 +1006,32 @@ void calculateCourseAverages(Student *head, float averages[5])
 // 显示成绩在特定值以上的学生
 void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
 {
-    // 检查链表是否为空
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("学生列表为空！\n");
         return;
     }
 
-    // 获取最低分数要求
-    printf("\nPlease enter the minimum score (0-100, or -1 to cancel): ");
+    printf("\n请输入最低分数（0-100，输入-1取消）: ");
     float minScore;
     scanf("%f", &minScore);
     if (minScore == -1)
     {
-        printf("Operation cancelled.\n");
+        printf("操作已取消。\n");
         return;
     }
     if (minScore < 0 || minScore > 100)
     {
-        printf("Invalid score! Please enter a value between 0 and 100.\n");
+        printf("无效的分数！请输入0到100之间的分数。\n");
         return;
     }
 
-    // 打印表头
-    printf("\nStudents with course %d score above %.2f:\n", course_index + 1, minScore);
-    printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
+    printf("\n课程 %d 分数高于 %.2f 的学生：\n", course_index + 1, minScore);
+    printf("%-10s %-15s %-5s %-8s\n", "学号", "姓名", "性别", "分数");
     printf("------------------------------------------\n");
 
-    // 遍历链表查找符合条件的学生
     Student *current = head;
-    int count = 0; // 记录符合条件的学生数量
+    int count = 0;
 
     while (current != NULL)
     {
@@ -1052,15 +1044,14 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
         current = current->next;
     }
 
-    // 显示统计结果
     if (count == 0)
     {
-        printf("No student's course %d score above %.2f!\n", course_index + 1, minScore);
+        printf("没有学生课程 %d 的分数高于 %.2f！\n", course_index + 1, minScore);
     }
     else
     {
         printf("------------------------------------------\n");
-        printf("Total %d students' course %d score above %.2f.\n", count, course_index + 1, minScore);
+        printf("共有 %d 名学生课程 %d 的分数高于 %.2f。\n", count, course_index + 1, minScore);
     }
 }
 
@@ -1124,25 +1115,22 @@ void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
 // 显示低于平均分的学生
 void displayStudentsBelowAverage(Student *head, float averages[5])
 {
-    // 检查链表是否为空
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("学生列表为空！\n");
         return;
     }
 
-    printf("\nStudents below average:\n");
+    printf("\n低于平均分的学生：\n");
 
-    // 对每门课程进行统计
     for (int i = 0; i < 5; i++)
     {
-        printf("\nCourse %d (Average: %.2f):\n", i + 1, averages[i]);
-        printf("%-10s %-15s %-5s %-8s\n", "ID", "Name", "Gender", "Score");
+        printf("\n课程 %d（平均分：%.2f）：\n", i + 1, averages[i]);
+        printf("%-10s %-15s %-5s %-8s\n", "学号", "姓名", "性别", "分数");
         printf("------------------------------------------\n");
 
-        // 遍历链表查找低于平均分的学生
         Student *current = head;
-        int count = 0; // 记录低于平均分的学生数量
+        int count = 0;
 
         while (current != NULL)
         {
@@ -1155,15 +1143,14 @@ void displayStudentsBelowAverage(Student *head, float averages[5])
             current = current->next;
         }
 
-        // 显示统计结果
         if (count == 0)
         {
-            printf("No student's score below average!\n");
+            printf("没有学生低于平均分！\n");
         }
         else
         {
             printf("------------------------------------------\n");
-            printf("Total %d students' course %d score below average.\n", count, i + 1);
+            printf("共有 %d 名学生课程 %d 的分数低于平均分。\n", count, i + 1);
         }
     }
 }
@@ -1171,28 +1158,24 @@ void displayStudentsBelowAverage(Student *head, float averages[5])
 // 显示不及格学生
 void displayFailingStudents(Student *head)
 {
-    // 检查链表是否为空
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("学生列表为空！\n");
         return;
     }
 
-    // 打印表头
-    printf("\nFailing students (below 60 points):\n");
-    printf("%-10s %-15s %-5s %-10s %-10s %-10s %-10s %-10s\n",
-           "ID", "Name", "Gender", "Course1", "Course2", "Course3", "Course4", "Course5");
+    printf("\n不及格学生（低于60分）：\n");
+    printf("%-10s %-15s %-5s %-11s %-11s %-11s %-11s %-11s\n",
+           "学号", "姓名", "性别", "课程1", "课程2", "课程3", "课程4", "课程5");
     printf("--------------------------------------------------------------------------------\n");
 
-    // 遍历链表查找不及格学生
     Student *current = head;
-    int totalFailingStudents = 0; // 记录不及格学生总数
+    int totalFailingStudents = 0;
 
     while (current != NULL)
     {
-        int hasFailingScore = 0; // 是否有不及格课程的标志
+        int hasFailingScore = 0;
 
-        // 检查是否有不及格课程
         for (int i = 0; i < 5; i++)
         {
             if (current->scores[i] < 60.0)
@@ -1202,22 +1185,20 @@ void displayFailingStudents(Student *head)
             }
         }
 
-        // 如果有不及格课程，显示学生信息
         if (hasFailingScore)
         {
             totalFailingStudents++;
             printf("%-10s %-15s %-5s ", current->id, current->name, current->gender);
 
-            // 显示所有课程成绩，标记不及格
             for (int i = 0; i < 5; i++)
             {
                 if (current->scores[i] < 60.0)
                 {
-                    printf("%-10.2f*", current->scores[i]); // 不及格成绩加*标记
+                    printf("*%-10.2f", current->scores[i]);
                 }
                 else
                 {
-                    printf("%-10.2f ", current->scores[i]);
+                    printf(" %-10.2f", current->scores[i]);
                 }
             }
             printf("\n");
@@ -1226,21 +1207,19 @@ void displayFailingStudents(Student *head)
         current = current->next;
     }
 
-    // 显示统计结果
     if (totalFailingStudents == 0)
     {
-        printf("No failing students found!\n");
+        printf("没有找到不及格的学生！\n");
     }
     else
     {
         printf("--------------------------------------------------------------------------------\n");
-        printf("Total %d students have failing courses. (* indicates failing score)\n", totalFailingStudents);
+        printf("共有 %d 名学生有不及格课程。（* 表示不及格成绩）\n", totalFailingStudents);
     }
 }
 
 void exportGradesToCSV(Student *head)
 {
-    // 确认是否导出
     printf("确定要导出成绩到CSV文件吗？(y/n，输入-1返回主菜单): ");
     char confirm[10];
     scanf("%s", confirm);
@@ -1255,25 +1234,19 @@ void exportGradesToCSV(Student *head)
         return;
     }
 
-    // 创建并打开CSV文件
     FILE *file = fopen("students.csv", "w");
     if (file == NULL)
     {
         printf("无法打开students.csv文件进行写入！\n");
         return;
     }
-
-    // 写入CSV文件头
     fprintf(file, "学号,姓名,性别,课程1,课程2,课程3,课程4,课程5,总分,平均分,排名\n");
-
-    // 写入每个学生的信息
     Student *current = head;
     while (current != NULL)
     {
         fprintf(file, "%s,%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d\n",
                 current->id, current->name, current->gender,
-                current->scores[0], current->scores[1], current->scores[2],
-                current->scores[3], current->scores[4],
+                current->scores[0], current->scores[1], current->scores[2], current->scores[3], current->scores[4],
                 current->total, current->average, current->rank);
         current = current->next;
     }
@@ -1290,31 +1263,30 @@ void registerUser()
         User *users = NULL;
         int count = loadUsers(&users);
 
-        printf("Please enter new username (or -1 to return to main menu): ");
+        printf("请输入新用户名（输入-1返回主菜单）: ");
         scanf("%s", username);
         if (strcmp(username, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("返回主菜单。\n");
             free(users);
             return;
         }
 
-        // 检查是否存在该用户
         for (int i = 0; i < count; i++)
         {
             if (strcmp(users[i].username, username) == 0)
             {
-                printf("Username already exists!\n");
+                printf("用户名已存在！\n");
                 free(users);
                 continue;
             }
         }
 
-        printf("Please enter new password (or -1 to return to main menu): ");
+        printf("请输入新密码（输入-1返回主菜单）: ");
         scanf("%s", password);
         if (strcmp(password, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("返回主菜单。\n");
             free(users);
             return;
         }
@@ -1323,7 +1295,7 @@ void registerUser()
         strcpy(users[count].username, username);
         strcpy(users[count].password, password);
         saveUsers(users, count + 1);
-        printf("User registered successfully!\n");
+        printf("用户注册成功！\n");
         free(users);
         return;
     }
@@ -1338,32 +1310,32 @@ void deleteUser()
         int count = loadUsers(&users);
         if (count <= 1)
         {
-            printf("At least one user must remain!\n");
+            printf("必须保留至少一个用户！\n");
             free(users);
             return;
         }
 
-        printf("Please enter username to delete (or -1 to return to main menu): ");
+        printf("请输入要删除的用户名（输入-1返回主菜单）: ");
         scanf("%s", username);
         if (strcmp(username, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("返回主菜单。\n");
             free(users);
             return;
         }
 
-        printf("Are you sure you want to delete user %s? (y/n, or -1 to return to previous menu): ", username);
+        printf("确定要删除用户 %s 吗？(y/n，输入-1返回上一级菜单): ", username);
         char confirm[10];
         scanf("%s", confirm);
         if (strcmp(confirm, "-1") == 0)
         {
-            printf("Returning to previous menu.\n");
+            printf("返回上一级菜单。\n");
             free(users);
             return;
         }
         if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
         {
-            printf("Deletion cancelled.\n");
+            printf("删除已取消。\n");
             free(users);
             return;
         }
@@ -1383,12 +1355,12 @@ void deleteUser()
         }
         if (!found)
         {
-            printf("Username not found!\n");
+            printf("未找到该用户名！\n");
             free(users);
             continue;
         }
         saveUsers(users, count - 1);
-        printf("User deleted successfully!\n");
+        printf("用户删除成功！\n");
         free(users);
         return;
     }
@@ -1405,20 +1377,20 @@ void changePassword()
         int count = loadUsers(&users);
         int found = 0;
 
-        printf("Please enter your username (or -1 to return to main menu): ");
+        printf("请输入您的用户名（输入-1返回主菜单）: ");
         scanf("%s", username);
         if (strcmp(username, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("返回主菜单。\n");
             free(users);
             return;
         }
 
-        printf("Please enter your old password (or -1 to return to main menu): ");
+        printf("请输入您的旧密码（输入-1返回主菜单）: ");
         scanf("%s", oldPassword);
         if (strcmp(oldPassword, "-1") == 0)
         {
-            printf("Returning to main menu.\n");
+            printf("返回主菜单。\n");
             free(users);
             return;
         }
@@ -1427,24 +1399,24 @@ void changePassword()
         {
             if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, oldPassword) == 0)
             {
-                printf("Please enter your new password (or -1 to return to main menu): ");
+                printf("请输入您的新密码（输入-1返回主菜单）: ");
                 scanf("%s", newPassword);
                 if (strcmp(newPassword, "-1") == 0)
                 {
-                    printf("Returning to main menu.\n");
+                    printf("返回主菜单。\n");
                     free(users);
                     return;
                 }
                 strcpy(users[i].password, newPassword);
                 saveUsers(users, count);
-                printf("Password changed successfully!\n");
+                printf("密码修改成功！\n");
                 found = 1;
                 break;
             }
         }
         if (!found)
         {
-            printf("Username or old password incorrect!\n");
+            printf("用户名或旧密码错误！\n");
             free(users);
             continue;
         }
@@ -1457,10 +1429,10 @@ void viewCurrentUser(char currentUser[])
 {
     if (strcmp(currentUser, "") == 0)
     {
-        printf("No user is currently logged in.\n");
+        printf("当前没有用户登录。\n");
         return;
     }
-    printf("Current logged in user: %s\n", currentUser);
+    printf("当前登录用户：%s\n", currentUser);
 }
 
 // 保存学生数据到文件
@@ -1566,56 +1538,51 @@ void freeStudentList(Student *head)
 // 根据学号删除学生
 Student *deleteStudentById(Student *head, const char *id)
 {
-    // 检查链表是否为空
     if (head == NULL)
     {
-        printf("Student list is empty!\n");
+        printf("学生列表为空！\n");
         return NULL;
     }
 
-    // 确认是否删除
-    printf("Are you sure you want to delete student with ID %s? (y/n, or -1 to return to previous menu): ", id);
+    printf("确定要删除学号为 %s 的学生吗？(y/n，输入-1返回上一级菜单): ", id);
     char confirm[10];
     scanf("%s", confirm);
     if (strcmp(confirm, "-1") == 0)
     {
-        printf("Returning to previous menu.\n");
+        printf("返回上一级菜单。\n");
         return head;
     }
     if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
     {
-        printf("Deletion cancelled.\n");
+        printf("删除已取消。\n");
         return head;
     }
 
-    // 如果要删除的是头节点
     if (strcmp(head->id, id) == 0)
     {
         Student *temp = head;
         head = head->next;
         free(temp);
-        printf("Student with ID %s deleted!\n", id);
+        printf("已删除学号为 %s 的学生！\n", id);
         return head;
     }
 
-    // 查找要删除的节点及其前一个节点
     Student *current = head;
     while (current->next != NULL && strcmp(current->next->id, id) != 0)
     {
         current = current->next;
     }
 
-    // 如果找到了要删除的节点
     if (current->next != NULL)
     {
         Student *temp = current->next;
         current->next = temp->next;
         free(temp);
-        printf("Student with ID %s deleted!\n", id);
+        printf("已删除学号为 %s 的学生！\n", id);
     }
     else
     {
-        printf("Student with ID %s not found!\n", id);
+        printf("未找到学号为 %s 的学生！\n", id);
     }
 
     return head;
@@ -1694,90 +1661,84 @@ Student *deleteStudentByName(Student *head, const char *name)
 // 根据学号修改学生信息
 Student *modifyStudentById(Student *head, const char *id)
 {
-    // 检查是否为取消操作
     if (strcmp(id, "-1") == 0)
     {
-        printf("Operation cancelled.\n");
+        printf("操作已取消。\n");
         return head;
     }
 
-    // 查找要修改的学生
     Student *student = findStudentById(head, id);
     if (student == NULL)
     {
         return head;
     }
 
-    // 修改菜单循环
     while (1)
     {
-        printf("\nPlease choose the information to modify:\n");
-        printf("1. Name\n");
-        printf("2. Gender\n");
-        printf("3. Scores\n");
-        printf("-1. Return to previous menu\n");
+        printf("\n请选择要修改的信息：\n");
+        printf("1. 姓名\n");
+        printf("2. 性别\n");
+        printf("3. 成绩\n");
+        printf("-1. 返回上一级菜单\n");
 
         int choice;
-        printf("Please enter choice: ");
+        printf("请输入选择: ");
         scanf("%d", &choice);
         if (choice == -1)
         {
-            printf("Returning to previous menu.\n");
+            printf("返回上一级菜单。\n");
             return head;
         }
 
-        // 根据选择修改相应信息
         switch (choice)
         {
-        case 1: // 修改姓名
-            printf("Please enter new name (or -1 to cancel): ");
+        case 1:
+            printf("请输入新姓名（输入-1取消）: ");
             scanf("%s", student->name);
             if (strcmp(student->name, "-1") == 0)
             {
-                printf("Operation cancelled.\n");
+                printf("操作已取消。\n");
                 continue;
             }
-            printf("Name modified successfully!\n");
+            printf("姓名修改成功！\n");
             break;
-
-        case 2: // 修改性别
+        case 2:
             while (1)
             {
-                printf("Please enter new gender (male/female, or -1 to cancel): ");
+                printf("请输入新性别（男/女，输入-1取消）: ");
                 scanf("%s", student->gender);
                 if (strcmp(student->gender, "-1") == 0)
                 {
-                    printf("Operation cancelled.\n");
+                    printf("操作已取消。\n");
                     break;
                 }
-                if (strcmp(student->gender, "male") == 0 || strcmp(student->gender, "female") == 0)
+                if (strcmp(student->gender, "男") == 0 || strcmp(student->gender, "女") == 0)
                 {
-                    printf("Gender modified successfully!\n");
+                    printf("性别修改成功！\n");
                     break;
                 }
                 else
                 {
-                    printf("Invalid gender! Please enter 'male' or 'female'.\n");
+                    printf("无效的性别！请输入'男'或'女'。\n");
                 }
             }
             break;
-
-        case 3: // 修改成绩
-            printf("\nPlease select which course to modify:\n");
-            printf("1. Course 1\n");
-            printf("2. Course 2\n");
-            printf("3. Course 3\n");
-            printf("4. Course 4\n");
-            printf("5. Course 5\n");
-            printf("-1. Return to previous menu\n");
+        case 3:
+            printf("\n请选择要修改的课程：\n");
+            printf("1. 课程1\n");
+            printf("2. 课程2\n");
+            printf("3. 课程3\n");
+            printf("4. 课程4\n");
+            printf("5. 课程5\n");
+            printf("-1. 返回上一级菜单\n");
 
             int courseChoice;
-            printf("Please enter course number to modify (1-5, or -1 to cancel): ");
+            printf("请输入要修改的课程编号（1-5，输入-1取消）: ");
             scanf("%d", &courseChoice);
 
             if (courseChoice == -1)
             {
-                printf("Returning to previous menu.\n");
+                printf("返回上一级菜单。\n");
                 continue;
             }
             else if (courseChoice >= 1 && courseChoice <= 5)
@@ -1785,34 +1746,33 @@ Student *modifyStudentById(Student *head, const char *id)
                 float score;
                 while (1)
                 {
-                    printf("Please enter new score for Course %d (0~100, or -1 to cancel): ", courseChoice);
+                    printf("请输入课程 %d 的新成绩（0~100，输入-1取消）: ", courseChoice);
                     scanf("%f", &score);
                     if (score == -1)
                     {
-                        printf("Operation cancelled.\n");
+                        printf("操作已取消。\n");
                         break;
                     }
                     if (score >= 0 && score <= 100)
                     {
                         student->scores[courseChoice - 1] = score;
-                        calculateTotalAndAverage(student); // 重新计算总分和平均分
-                        printf("Course %d score modified successfully!\n", courseChoice);
+                        calculateTotalAndAverage(student);
+                        printf("课程 %d 成绩修改成功！\n", courseChoice);
                         break;
                     }
                     else
                     {
-                        printf("Invalid score! Please enter a value between 0 and 100.\n");
+                        printf("无效的成绩！请输入0到100之间的分数。\n");
                     }
                 }
             }
             else
             {
-                printf("Invalid course selection!\n");
+                printf("无效的课程选择！\n");
             }
             break;
-
         default:
-            printf("Invalid choice!\n");
+            printf("无效的选择！\n");
         }
     }
 

@@ -23,7 +23,7 @@ typedef struct Student
 // 函数声明
 // 1. 用户登录相关
 int login(char currentUser[]);
-int verifyUser(  char *username,   char *password);
+int verifyUser(char *username, char *password);
 void saveUsers(User *users, int count);
 int loadUsers(User **users);
 void exportGradesToCSV(Student *head);
@@ -35,12 +35,10 @@ void viewCurrentUser(char currentUser[]);
 // 2. 学生信息管理
 Student *createStudentList();
 Student *addStudent(Student *head);
-Student *deleteStudentById(Student *head,   char *id);
-Student *deleteStudentByName(Student *head,   char *name);
-Student *findStudentById(Student *head,   char *id);
-Student *findStudentByName(Student *head,   char *name);
-Student *modifyStudentById(Student *head,   char *id);
-Student *modifyStudentByName(Student *head,   char *name);
+Student *deleteStudentById(Student *head, char *id);
+Student *findStudentById(Student *head, char *id);
+Student *findStudentByName(Student *head, char *name);
+Student *modifyStudentById(Student *head, char *id);
 void displayAllStudents(Student *head);
 void freeStudentList(Student *head);
 
@@ -51,14 +49,13 @@ void rankStudentsByTotal(Student *head);
 Student *sortStudentsById(Student *head);
 Student *sortStudentsByTotal(Student *head);
 void displayStudentsWithScoreAbove(Student *head, float score, int course_index);
-void displayStudentsWithScoreBelow(Student *head, float score, int course_index);
-void calculateCourseAverages(Student *head, float averages[5]);
-void displayStudentsBelowAverage(Student *head, float averages[5]);
+void calculateCourseAverages(Student *head, float averages[]);
+void displayStudentsBelowAverage(Student *head, float averages[]);
 void displayFailingStudents(Student *head);
 
 // 4. 文件操作
-int saveStudentsToFile(Student *head,   char *filename);
-Student *loadStudentsFromFile(  char *filename);
+int saveStudentsToFile(Student *head, char *filename);
+Student *loadStudentsFromFile(char *filename);
 
 // 5. 菜单和主程序
 void displayMenu();
@@ -157,7 +154,7 @@ int login(char currentUser[])
     return 0;
 }
 
-int verifyUser(  char *username,   char *password)
+int verifyUser(char *username, char *password)
 {
     User *users = NULL;
     int count = loadUsers(&users);
@@ -364,15 +361,6 @@ Student *createStudentList()
     return NULL;
 }
 
-// 二次确认
-int confirmReturn()
-{
-    char confirm[10];
-    printf("确定要取消并返回主菜单吗？(yes/no): ");
-    scanf("%s", confirm);
-    return strcmp(confirm, "yes") == 0;
-}
-
 Student *addStudent(Student *head)
 {
     while (1)
@@ -456,9 +444,21 @@ Student *addStudent(Student *head)
         }
 
         calculateTotalAndAverage(newStudent);
+        newStudent->next = NULL;
 
-        newStudent->next = head;
-        head = newStudent;
+        if (head == NULL)
+        {
+            head = newStudent;
+        }
+        else
+        {
+            Student *current = head;
+            while (current->next != NULL)
+            {
+                current = current->next;
+            }
+            current->next = newStudent;
+        }
 
         printf("学生信息添加成功！\n");
         return head;
@@ -536,7 +536,7 @@ void rankStudentsByTotal(Student *head)
     free(students);
 }
 
-Student *findStudentById(Student *head,   char *id)
+Student *findStudentById(Student *head, char *id)
 {
     if (strcmp(id, "-1") == 0)
     {
@@ -568,7 +568,7 @@ Student *findStudentById(Student *head,   char *id)
     return NULL;
 }
 
-Student *findStudentByName(Student *head,   char *name)
+Student *findStudentByName(Student *head, char *name)
 {
     if (strcmp(name, "-1") == 0)
     {
@@ -609,7 +609,7 @@ Student *findStudentByName(Student *head,   char *name)
     return head;
 }
 
-int saveStudentsToFile(Student *head,   char *filename)
+int saveStudentsToFile(Student *head, char *filename)
 {
     (void)filename;
     FILE *file = fopen("students.txt", "w");
@@ -633,7 +633,7 @@ int saveStudentsToFile(Student *head,   char *filename)
     return 1;
 }
 
-Student *loadStudentsFromFile(  char *filename)
+Student *loadStudentsFromFile(char *filename)
 {
     (void)filename;
     FILE *file = fopen("students.txt", "r");
@@ -735,7 +735,7 @@ int loadUsers(User **users)
     return count;
 }
 
-Student *deleteStudentById(Student *head,   char *id)
+Student *deleteStudentById(Student *head, char *id)
 {
     if (head == NULL)
     {
@@ -787,72 +787,7 @@ Student *deleteStudentById(Student *head,   char *id)
     return head;
 }
 
-Student *deleteStudentByName(Student *head,   char *name)
-{
-    if (head == NULL)
-    {
-        printf("学生列表为空！\n");
-        return NULL;
-    }
-
-    printf("确定要删除姓名为 %s 的学生吗？(y/n，输入-1返回上一级菜单): ", name);
-    char confirm[10];
-    scanf("%s", confirm);
-    if (strcmp(confirm, "-1") == 0)
-    {
-        printf("返回上一级菜单。\n");
-        return head;
-    }
-    if (strcmp(confirm, "y") != 0 && strcmp(confirm, "Y") != 0)
-    {
-        printf("删除已取消。\n");
-        return head;
-    }
-
-    while (head != NULL && strcmp(head->name, name) == 0)
-    {
-        Student *temp = head;
-        head = head->next;
-        free(temp);
-        printf("已删除姓名为 %s 的学生！\n", name);
-    }
-
-    if (head == NULL)
-    {
-        return NULL;
-    }
-
-    Student *current = head;
-    int deleted = 0;
-
-    while (current->next != NULL)
-    {
-        if (strcmp(current->next->name, name) == 0)
-        {
-            Student *temp = current->next;
-            current->next = temp->next;
-            free(temp);
-            deleted++;
-        }
-        else
-        {
-            current = current->next;
-        }
-    }
-
-    if (deleted > 0)
-    {
-        printf("已删除 %d 名姓名为 %s 的学生！\n", deleted, name);
-    }
-    else
-    {
-        printf("未找到姓名为 %s 的学生！\n", name);
-    }
-
-    return head;
-}
-
-Student *modifyStudentById(Student *head,   char *id)
+Student *modifyStudentById(Student *head, char *id)
 {
     if (strcmp(id, "-1") == 0)
     {
@@ -967,124 +902,6 @@ Student *modifyStudentById(Student *head,   char *id)
         default:
             printf("无效的选择！\n");
         }
-    }
-
-    return head;
-}
-
-Student *modifyStudentByName(Student *head,   char *name)
-{
-    int count = 0;
-    Student *current = head;
-
-    while (current != NULL)
-    {
-        if (strcmp(current->name, name) == 0)
-        {
-            count++;
-        }
-        current = current->next;
-    }
-
-    if (count == 0)
-    {
-        printf("未找到姓名为 %s 的学生！\n", name);
-        return head;
-    }
-
-    if (count > 1)
-    {
-        printf("找到 %d 名姓名为 %s 的学生，请使用学号进行修改！\n", count, name);
-        return head;
-    }
-
-    current = head;
-    while (current != NULL)
-    {
-        if (strcmp(current->name, name) == 0)
-        {
-            printf("\n请选择要修改的信息：\n");
-            printf("1. 学号\n");
-            printf("2. 性别\n");
-            printf("3. 成绩\n");
-            printf("-1. 取消修改\n");
-
-            int choice;
-            printf("请输入选择: ");
-            scanf("%d", &choice);
-            if (choice == -1)
-            {
-                printf("操作已取消。\n");
-                return head;
-            }
-
-            switch (choice)
-            {
-            case 1:
-                printf("请输入新学号（输入-1取消）: ");
-                scanf("%s", current->id);
-                if (strcmp(current->id, "-1") == 0)
-                {
-                    printf("操作已取消。\n");
-                    return head;
-                }
-                printf("学号修改成功！\n");
-                break;
-            case 2:
-                while (1)
-                {
-                    printf("请输入新性别（男/女，输入-1取消）: ");
-                    scanf("%s", current->gender);
-                    if (strcmp(current->gender, "-1") == 0)
-                    {
-                        printf("操作已取消。\n");
-                        return head;
-                    }
-                    if (strcmp(current->gender, "男") == 0 || strcmp(current->gender, "女") == 0)
-                    {
-                        printf("性别修改成功！\n");
-                        break;
-                    }
-                    else
-                    {
-                        printf("无效的性别！请输入'男'或'女'。\n");
-                    }
-                }
-                break;
-            case 3:
-                printf("请输入新的5门课程成绩（0~100，输入-1取消）:\n");
-                for (int i = 0; i < 5; i++)
-                {
-                    float score;
-                    while (1)
-                    {
-                        printf("课程 %d: ", i + 1);
-                        scanf("%f", &score);
-                        if (score == -1)
-                        {
-                            printf("操作已取消。\n");
-                            return head;
-                        }
-                        if (score >= 0 && score <= 100)
-                        {
-                            current->scores[i] = score;
-                            break;
-                        }
-                        else
-                        {
-                            printf("无效的成绩！请输入0到100之间的分数。\n");
-                        }
-                    }
-                }
-                calculateTotalAndAverage(current);
-                printf("成绩修改成功！\n");
-                break;
-            default:
-                printf("无效的选择！\n");
-            }
-            break;
-        }
-        current = current->next;
     }
 
     return head;
@@ -1312,57 +1129,6 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
     }
 }
 
-void displayStudentsWithScoreBelow(Student *head, float score, int course_index)
-{
-    if (head == NULL)
-    {
-        printf("学生列表为空！\n");
-        return;
-    }
-
-    printf("\n请输入最高分数（0-100，输入-1取消）: ");
-    float maxScore;
-    scanf("%f", &maxScore);
-    if (maxScore == -1)
-    {
-        printf("操作已取消。\n");
-        return;
-    }
-    if (maxScore < 0 || maxScore > 100)
-    {
-        printf("无效的分数！请输入0到100之间的分数。\n");
-        return;
-    }
-
-    printf("\n课程 %d 分数低于 %.2f 的学生：\n", course_index + 1, maxScore);
-    printf("%-10s %-15s %-5s %-8s\n", "学号", "姓名", "性别", "分数");
-    printf("------------------------------------------\n");
-
-    Student *current = head;
-    int count = 0;
-
-    while (current != NULL)
-    {
-        if (current->scores[course_index] < maxScore)
-        {
-            printf("%-10s %-15s %-5s %-8.2f\n",
-                   current->id, current->name, current->gender, current->scores[course_index]);
-            count++;
-        }
-        current = current->next;
-    }
-
-    if (count == 0)
-    {
-        printf("没有学生课程 %d 的分数低于 %.2f！\n", course_index + 1, maxScore);
-    }
-    else
-    {
-        printf("------------------------------------------\n");
-        printf("共有 %d 名学生课程 %d 的分数低于 %.2f。\n", count, course_index + 1, maxScore);
-    }
-}
-
 void displayStudentsBelowAverage(Student *head, float averages[5])
 {
     if (head == NULL)
@@ -1414,7 +1180,7 @@ void displayFailingStudents(Student *head)
     }
 
     printf("\n不及格学生（低于60分）：\n");
-    printf("%-10s %-15s %-5s %-10s %-10s %-10s %-10s %-10s\n",
+    printf("%-10s %-15s %-5s %-11s %-11s %-11s %-11s %-11s\n",
            "学号", "姓名", "性别", "课程1", "课程2", "课程3", "课程4", "课程5");
     printf("--------------------------------------------------------------------------------\n");
 
@@ -1443,11 +1209,11 @@ void displayFailingStudents(Student *head)
             {
                 if (current->scores[i] < 60.0)
                 {
-                    printf("%-10.2f*", current->scores[i]);
+                    printf("*%-10.2f", current->scores[i]);
                 }
                 else
                 {
-                    printf("%-10.2f ", current->scores[i]);
+                    printf(" %-10.2f", current->scores[i]);
                 }
             }
             printf("\n");
