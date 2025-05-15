@@ -82,22 +82,7 @@
         <p>&copy; 2025 咸鱼万事屋</p>
     </footer>
 
-    <script>
-        function openService(serviceName) {
-            const contents = document.getElementsByClassName("service-content");
-            for (let i = 0; i < contents.length; i++) {
-                contents[i].style.display = "none";
-            }
-            
-            const btns = document.getElementsByClassName("tab-btn");
-            for (let i = 0; i < btns.length; i++) {
-                btns[i].className = btns[i].className.replace(" active", "");
-            }
-            
-            document.getElementById(serviceName).style.display = "block";
-            event.currentTarget.className += " active";
-        }
-    </script>
+    <script src="../JS/main.js"></script>
 </body>
 
 </html>

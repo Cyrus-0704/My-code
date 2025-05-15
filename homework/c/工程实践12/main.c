@@ -54,7 +54,6 @@ void displayStudentsWithScoreAbove(Student *head, float score, int course_index)
 void displayStudentsWithScoreBelow(Student *head, float score, int course_index);
 void calculateCourseAverages(Student *head, float averages[5]);
 void displayStudentsBelowAverage(Student *head, float averages[5]);
-void displayExcellentStudents(Student *head);
 void displayFailingStudents(Student *head);
 
 // 4. 文件操作
@@ -73,7 +72,6 @@ int main()
     int loggedIn = 0;
     int exitFlag = 0;
 
-    // 验证用户登录，三次机会
     loggedIn = login(currentUser);
     if (!loggedIn)
     {
@@ -81,7 +79,6 @@ int main()
         return 1;
     }
 
-    // 从文件加载学生数据，若无数据则新建链表
     head = loadStudentsFromFile("students.txt");
     if (head == NULL)
     {
@@ -92,7 +89,7 @@ int main()
     // 主菜单循环，till选择退出
     do
     {
-        displayMenu();                        
+        displayMenu();
         printf("Please enter your choice: ");
         scanf("%d", &choice);
         if (choice == 0)
@@ -124,7 +121,7 @@ int main()
     {
         printf("Data saving failed!\n");
     }
-  
+
     freeStudentList(head);
 
     printf("Thank you for using this system, goodbye!\n");
@@ -197,7 +194,6 @@ int verifyUser(const char *username, const char *password)
     return 0;
 }
 
-// 显示主菜单
 void displayMenu()
 {
     printf("\n=== Student Grade Management System ===\n");
@@ -314,11 +310,26 @@ void processChoice(int choice, Student **head, char currentUser[])
         }
         break;
     case 10:
-        displayExcellentStudents(*head);
+        {
+            int course_index;
+            printf("Please enter course number (1-5, or -1 to return to main menu): ");
+            scanf("%d", &course_index);
+            if (course_index == -1)
+            {
+                printf("Returning to main menu.\n");
+                break;
+            }
+            if (course_index < 1 || course_index > 5)
+            {
+                printf("Invalid course number!\n");
+                break;
+            }
+            displayStudentsWithScoreAbove(*head, 0, course_index - 1); // 0无实际意义
+        }
         break;
     case 11:
         displayFailingStudents(*head);
-        break;
+        break;  
     case 12:
         calculateCourseAverages(*head, averages);
         displayStudentsBelowAverage(*head, averages);
@@ -726,12 +737,12 @@ int loadUsers(User **users)
         fclose(file);
         return 0;
     }
-    while (!feof(file))
+    while (!feof(file)) // 如果文件未结束，则继续读取
     {
         if (count >= capacity)
         {
             capacity *= 2;
-            *users = (User *)realloc(*users, sizeof(User) * capacity);
+            *users = (User *)realloc(*users, sizeof(User) * capacity); // 如果用户数量超过容量，则重新分配内存
         }
         User temp;
         if (fscanf(file, "%s %s", temp.username, temp.password) == 2)
@@ -1436,64 +1447,6 @@ void displayStudentsBelowAverage(Student *head, float averages[5])
         {
             printf("------------------------------------------\n");
             printf("Total %d students' course %d score below average.\n", count, i + 1);
-        }
-    }
-}
-
-void displayExcellentStudents(Student *head)
-{
-    if (head == NULL)
-    {
-        printf("Student list is empty!\n");
-        return;
-    }
-
-    float minScores[5];
-    for (int course = 0; course < 5; course++)
-    {
-        printf("\nPlease enter the minimum score for Course %d (0-100, or -1 to return to main menu): ", course + 1);
-        scanf("%f", &minScores[course]);
-        if (minScores[course] == -1)
-        {
-            printf("Returning to main menu.\n");
-            return;
-        }
-        if (minScores[course] < 0 || minScores[course] > 100)
-        {
-            printf("Invalid score! Please enter a value between 0 and 100.\n");
-            course--; // 重试当前课程
-            continue;
-        }
-        
-        printf("\nCourse %d (Students with scores above %.2f):\n", course + 1, minScores[course]);
-        printf("%-10s %-15s %-10s\n", "ID", "Name", "Score");
-        printf("----------------------------------------\n");
-
-        Student *current = head;
-        int courseCount = 0;
-
-        while (current != NULL)
-        {
-            if (current->scores[course] >= minScores[course])
-            {
-                courseCount++;
-                printf("%-10s %-15s %-10.2f\n",
-                       current->id,
-                       current->name,
-                       current->scores[course]);
-            }
-            current = current->next;
-        }
-
-        if (courseCount == 0)
-        {
-            printf("No students found with Course %d score above %.2f!\n", course + 1, minScores[course]);
-        }
-        else
-        {
-            printf("----------------------------------------\n");
-            printf("Total %d students have Course %d score above %.2f.\n",
-                   courseCount, course + 1, minScores[course]);
         }
     }
 }
